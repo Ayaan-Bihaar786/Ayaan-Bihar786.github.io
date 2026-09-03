@@ -6,15 +6,20 @@
     <title>Social Exchange App</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; margin: 0; }
-        .card { background: white; padding: 25px; max-width: 400px; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; margin-bottom: 20px; }
-        button { background: #4285f4; color: white; border: none; padding: 12px 20px; margin: 10px 0; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; transition: 0.3s; }
+        .card { background: white; padding: 25px; max-width: 450px; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2, h3 { color: #333; margin-bottom: 15px; }
+        button { background: #4285f4; color: white; border: none; padding: 12px 20px; margin: 8px 0; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; transition: 0.3s; }
         button:hover { background: #357ae8; }
         .btn-green { background: #10b981; }
         .btn-green:hover { background: #059669; }
+        .btn-secondary { background: #6b7280; }
+        .btn-secondary:hover { background: #4b5563; }
         .coin-box { font-size: 22px; font-weight: bold; color: #d97706; margin: 15px 0; background: #fffbe3; padding: 10px; border-radius: 8px; border: 1px solid #fef08a; }
-        input { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000; }
+        .video-container iframe { position: absolute; top:0; left: 0; width: 100%; height: 100%; border: 0; }
+        .rate-info { font-size: 13px; color: #2563eb; background: #eff6ff; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -29,20 +34,37 @@
 
         <!-- 2. यूज़र डैशबोर्ड -->
         <div id="user-section" style="display:none;">
-            <p style="font-size: 18px;">नमस्ते, <b id="user-name">...</b>!</p>
+            <p style="font-size: 18px; margin: 5px 0;">नमस्ते, <b id="user-name">...</b>!</p>
             <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
             
             <hr>
             
-            <h3>1. कॉइन कमाएं</h3>
-            <p style="color: #666; font-size: 14px;">टास्क पूरा करके +5 कॉइन प्राप्त करें</p>
-            <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
+            <!-- वीडियो टास्क सेक्शन -->
+            <h3>1. कॉइन कमाएं (Watch & Like)</h3>
+            <div class="video-container">
+                <iframe id="youtube-player" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+            </div>
+            <button onclick="completeTask()" class="btn-green">लाइक / सब्सक्राइब किया (+5 Coins)</button>
+            <button onclick="nextVideo()" class="btn-secondary">अगला वीडियो (Next Video) ➔</button>
 
             <hr>
 
-            <h3>2. ऑर्डर लगाएं</h3>
+            <!-- ऑर्डर सेक्शन -->
+            <h3>2. ऑर्डर लगाएं (Promote Your Link)</h3>
+            
+            <select id="order-type" onchange="calculateOutput()">
+                <option value="subs">Subscribers / Followers (1 Coin = 1000)</option>
+                <option value="likes">Likes (1 Coin = 125 Likes)</option>
+            </select>
+
             <input type="text" id="channel-link" placeholder="चैनल या वीडियो का लिंक डालें">
-            <button onclick="placeOrder()" class="btn-green">ऑर्डर लगाएं (10 Coins)</button>
+            <input type="number" id="coin-amount" placeholder="कितने कॉइन्स खर्च करना चाहते हैं?" min="1" oninput="calculateOutput()">
+            
+            <div class="rate-info" id="calculation-result">
+                अनुमानित लाभ: 0
+            </div>
+
+            <button onclick="placeOrder()" class="btn-green">ऑर्डर लगाएं</button>
         </div>
     </div>
 
@@ -51,8 +73,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
             getAuth, 
-            signInWithRedirect, 
-            getRedirectResult, 
+            signInWithPopup, 
             GoogleAuthProvider, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -62,10 +83,11 @@
             getDoc, 
             setDoc, 
             updateDoc, 
+            collection,
+            addDoc,
             increment 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // अपडेटेड और सही Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
             authDomain: "socialexchange-338ec.firebaseapp.com",
@@ -76,29 +98,30 @@
             measurementId: "G-W3DN7CH8SV"
         };
 
-        // Firebase Initialization
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // 1. Google Login Call
+        // सैंपल YouTube वीडियो IDs
+        const sampleVideos = [
+            "dQw4w9WgXcQ",
+            "3JZ_D3ELwOQ",
+            "L_LUpnjgPso",
+            "fJ9rUzIMcZQ"
+        ];
+        let currentVideoIndex = 0;
+
+        // 1. Google Login (Popup Variant)
         window.loginWithGoogle = async () => {
             try {
-                await signInWithRedirect(auth, provider);
+                await signInWithPopup(auth, provider);
             } catch (error) {
-                alert("Login Initiating Error: " + error.message);
+                alert("Login Error: " + error.message);
             }
         };
 
-        // 2. Mobile Redirect Listener
-        getRedirectResult(auth).catch((error) => {
-            if (error.code !== "auth/popup-closed-by-user") {
-                alert("Redirect Error: " + error.message);
-            }
-        });
-
-        // 3. Login State Monitor & Database Auto-Sync
+        // 2. Auth State Sync
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-section').style.display = 'none';
@@ -128,13 +151,10 @@
             }
         });
 
-        // 4. Task Complete (+5 Coins)
+        // 3. Task Completion Logic
         window.completeTask = async () => {
             const user = auth.currentUser;
-            if (!user) {
-                alert("कृपया पहले लॉगिन करें!");
-                return;
-            }
+            if (!user) return alert("कृपया पहले लॉगिन करें!");
 
             try {
                 const userRef = doc(db, "users", user.uid);
@@ -142,35 +162,78 @@
                 
                 const updatedSnap = await getDoc(userRef);
                 document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
-                alert("बधाई हो! आपको 5 कॉइन मिल गए।");
+                alert("बधाई हो! टास्क पूरा करने के लिए आपको 5 कॉइन मिल गए।");
+                window.nextVideo();
             } catch (error) {
                 alert("Task Error: " + error.message);
             }
         };
 
-        // 5. Place Order (-10 Coins)
+        // 4. Next Video Logic
+        window.nextVideo = () => {
+            currentVideoIndex = (currentVideoIndex + 1) % sampleVideos.length;
+            const newVideoId = sampleVideos[currentVideoIndex];
+            document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${newVideoId}`;
+        };
+
+        // 5. Rate Calculator Logic
+        window.calculateOutput = () => {
+            const type = document.getElementById('order-type').value;
+            const coins = parseInt(document.getElementById('coin-amount').value) || 0;
+            const resultDiv = document.getElementById('calculation-result');
+
+            if (type === 'subs') {
+                const count = coins * 1000;
+                resultDiv.innerText = `अनुमानित लाभ: ${count} Subscribers / Followers`;
+            } else {
+                const count = coins * 125;
+                resultDiv.innerText = `अनुमानित लाभ: ${count} Likes`;
+            }
+        };
+
+        // 6. Place Order Logic
         window.placeOrder = async () => {
             const user = auth.currentUser;
             const link = document.getElementById('channel-link').value.trim();
+            const coinsToSpend = parseInt(document.getElementById('coin-amount').value);
+            const orderType = document.getElementById('order-type').value;
 
-            if (!link) {
-                alert("कृपया पहले लिंक दर्ज करें!");
-                return;
-            }
-
-            if (!user) {
-                alert("कृपया पहले लॉगिन करें!");
-                return;
-            }
+            if (!link) return alert("कृपया लिंक दर्ज करें!");
+            if (!coinsToSpend || coinsToSpend <= 0) return alert("कृपया कॉइन्स की सही संख्या दर्ज करें!");
+            if (!user) return alert("कृपया पहले लॉगिन करें!");
 
             try {
                 const userRef = doc(db, "users", user.uid);
-                await updateDoc(userRef, { coins: increment(-10) });
-                
-                const updatedSnap = await getDoc(userRef);
-                document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
+                const userSnap = await getDoc(userRef);
+                const currentCoins = userSnap.data().coins || 0;
+
+                if (currentCoins < coinsToSpend) {
+                    return alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! पहले और कॉइन्स कमाएं।");
+                }
+
+                // Deduct Coins
+                await updateDoc(userRef, { coins: increment(-coinsToSpend) });
+
+                // Calculate Quantity
+                const quantity = orderType === 'subs' ? coinsToSpend * 1000 : coinsToSpend * 125;
+
+                // Save Order in Firestore
+                await addDoc(collection(db, "orders"), {
+                    userId: user.uid,
+                    userEmail: user.email,
+                    link: link,
+                    orderType: orderType,
+                    coinsSpent: coinsToSpend,
+                    quantity: quantity,
+                    createdAt: new Date()
+                });
+
+                document.getElementById('coin-balance').innerText = currentCoins - coinsToSpend;
                 document.getElementById('channel-link').value = '';
-                alert("ऑर्डर सफलतापूर्वक लग गया!");
+                document.getElementById('coin-amount').value = '';
+                window.calculateOutput();
+
+                alert(`ऑर्डर सफलतापूर्वक लग गया! ${quantity} ${orderType === 'subs' ? 'Subscribers/Followers' : 'Likes'} का ऑर्डर दर्ज कर लिया गया है।`);
             } catch (error) {
                 alert("Order Error: " + error.message);
             }
