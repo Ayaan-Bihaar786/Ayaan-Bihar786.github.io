@@ -1,143 +1,141 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Exchange App</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-    .card { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    button { background: #4285F4; color: white; border: none; padding: 10px 15px; margin: 10px; border-radius: 5px; cursor: pointer; font-size: 16px; }
-    button:hover { background: #357ae8; }
-    .coin-box { font-size: 20px; font-weight: bold; color: #d97706; margin: 15px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Exchange App</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
+        .card { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        button { background: #4285f4; color: white; border: none; padding: 10px 15px; margin: 10px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #357ae8; }
+        .coin-box { font-size: 20px; font-weight: bold; color: #d97706; margin: 15px 0; }
+    </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>Social Exchange App</h2>
-    
-    <!-- लॉगिन सेक्शन -->
-    <div id="auth-section">
-      <button onclick="loginWithGoogle()">Google से सुरक्षित लॉगिन करें</button>
+    <div class="card">
+        <h2>Social Exchange App</h2>
+
+        <!-- लॉगिन सेक्शन -->
+        <div id="auth-section">
+            <button onclick="loginWithGoogle()">Google से सुरक्षित लॉगिन करें</button>
+        </div>
+
+        <!-- यूज़र डैशबोर्ड (लॉगिन के बाद दिखेगा) -->
+        <div id="user-section" style="display:none;">
+            <p>स्वागत है, <span id="user-name"></span>!</p>
+            <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
+            
+            <hr>
+            
+            <h3>1. वीडियो देखें और कॉइन कमाएं</h3>
+            <p>टास्क पूरा करके +5 कॉइन प्राप्त करें</p>
+            <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
+
+            <hr>
+
+            <h3>2. ऑर्डर लगाएं</h3>
+            <input type="text" id="channel-link" placeholder="चैनल/वीडियो का लिंक दर्ज करें" style="width: 80%; padding: 8px; margin-bottom: 10px;">
+            <button onclick="placeOrder()" style="background: #10b981;">ऑर्डर लगाएं (10 Coins)</button>
+        </div>
     </div>
 
-    <!-- यूजर डैशबोर्ड (लॉगिन के बाद दिखेगा) -->
-    <div id="user-section" style="display:none;">
-      <p>स्वागत है, <span id="user-name"></span>!</p>
-      <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
-      
-      <hr>
-      
-      <h3>1. वीडियो देखें और कॉइन कमाएं</h3>
-      <p>टास्क पूरा करके +5 कॉइन्स प्राप्त करें</p>
-      <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
+    <!-- Firebase JavaScript SDK Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-      <hr>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQSr1-enoonXS9Bp4FCVnTS6NGrs7ECXW",
+            authDomain: "socialexchange-338ec.firebaseapp.com",
+            projectId: "socialexchange-338ec",
+            storageBucket: "socialexchange-338ec.firebasestorage.app",
+            messagingSenderId: "478596117635",
+            appId: "1:478596117635:web:30059dwef46cca65d17bi"
+        };
 
-      <h3>2. ऑर्डर लगाएं</h3>
-      <input type="text" id="channel-link" placeholder="चैनल/वीडियो का लिंक डालें" style="width: 80%; padding: 8px; margin-bottom: 10px;"><br>
-      <button onclick="placeOrder()" style="background: #16a34a;">ऑर्डर लगाएं (10 Coins)</button>
-    </div>
-  </div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-  <!-- Firebase JavaScript SDK Integration -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // 1. Google Login (Redirect Method for Mobile)
+        window.loginWithGoogle = () => {
+            signInWithRedirect(auth, provider);
+        };
 
-    // आपकी स्क्रीन से प्राप्त Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
-      authDomain: "socialexchange-338ec.firebaseapp.com",
-      projectId: "socialexchange-338ec",
-      storageBucket: "socialexchange-338ec.firebasestorage.app",
-      messagingSenderId: "478596117635",
-      appId: "1:478596117635:web:30059daef46ccca05d57b6"
-    };
+        // 2. Auth State and Data Management
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('user-section').style.display = 'block';
+                document.getElementById('user-name').innerText = user.displayName;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
 
-    // 1. Google Safe Sign-In
-    window.loginWithGoogle = async () => {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        name: user.displayName,
+                        email: user.email,
+                        coins: 0
+                    });
+                } else {
+                    document.getElementById('coin-balance').innerText = userSnap.data().coins || 0;
+                }
+            } else {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('user-section').style.display = 'none';
+            }
+        });
 
-        if (!userSnap.exists()) {
-          await setDoc(userRef, {
-            name: user.displayName,
-            email: user.email,
-            coins: 0
-          });
-        }
-      } catch (error) {
-        alert("लॉगिन में त्रुटि हुई: " + error.message);
-      }
-    };
+        // Redirect परिणाम को हैंडल करें
+        getRedirectResult(auth).catch((error) => {
+            console.error("Login Redirect Error:", error);
+        });
 
-    // 2. यूजर का स्टेट और कॉइन बैलेंस संभालना
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        document.getElementById("auth-section").style.display = "none";
-        document.getElementById("user-section").style.display = "block";
-        document.getElementById("user-name").innerText = user.displayName;
+        // 3. Task Completion (Earn Coins)
+        window.completeTask = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = doc(db, "users", user.uid);
+                await updateDoc(userRef, { coins: increment(5) });
+                
+                const updatedSnap = await getDoc(userRef);
+                document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
+                alert("बधाई हो! आपको 5 कॉइन मिल गए हैं।");
+            }
+        };
 
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          document.getElementById("coin-balance").innerText = userSnap.data().coins;
-        }
-      } else {
-        document.getElementById("auth-section").style.display = "block";
-        document.getElementById("user-section").style.display = "none";
-      }
-    });
+        // 4. Order Placement (Spend Coins)
+        window.placeOrder = async () => {
+            const user = auth.currentUser;
+            const link = document.getElementById('channel-link').value;
 
-    // 3. कॉइन्स बढ़ाना (+5 Coins)
-    window.completeTask = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
+            if (!link) {
+                alert("कृपया पहले लिंक दर्ज करें!");
+                return;
+            }
 
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { coins: increment(5) });
-      
-      const userSnap = await getDoc(userRef);
-      document.getElementById("coin-balance").innerText = userSnap.data().coins;
-      alert("टास्क पूरा हुआ! आपको +5 कॉइन्स मिले।");
-    };
+            if (user) {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                const currentCoins = userSnap.data().coins || 0;
 
-    // 4. ऑर्डर लगाने का लॉजिक
-    window.placeOrder = async () => {
-      const user = auth.currentUser;
-      const link = document.getElementById("channel-link").value;
-
-      if (!link) {
-        alert("कृपया चैनल या वीडियो का लिंक डालें!");
-        return;
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      const currentCoins = userSnap.data().coins;
-
-      if (currentCoins < 10) {
-        alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! कम से कम 10 कॉइन्स चाहिए।");
-        return;
-      }
-
-      await updateDoc(userRef, { coins: increment(-10) });
-      document.getElementById("coin-balance").innerText = currentCoins - 10;
-      document.getElementById("channel-link").value = "";
-      alert("ऑर्डर सफलतापूर्वक लग गया!");
-    };
-  </script>
+                if (currentCoins >= 10) {
+                    await updateDoc(userRef, { coins: increment(-10) });
+                    const updatedSnap = await getDoc(userRef);
+                    document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
+                    document.getElementById('channel-link').value = '';
+                    alert("आपका ऑर्डर सफलतापूर्वक सबमिट हो गया है!");
+                } else {
+                    alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! (कम से कम 10 Coins चाहिए)");
+                }
+            }
+        };
+    </script>
 </body>
 </html>
