@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Exchange App</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-        .card { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        button { background: #4285f4; color: white; border: none; padding: 10px 15px; margin: 10px; border-radius: 5px; cursor: pointer; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; margin: 0; }
+        .card { background: white; padding: 25px; max-width: 400px; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        button { background: #4285f4; color: white; border: none; padding: 12px 20px; margin: 10px 0; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; transition: 0.3s; }
         button:hover { background: #357ae8; }
-        .coin-box { font-size: 20px; font-weight: bold; color: #d97706; margin: 15px 0; }
+        .btn-green { background: #10b981; }
+        .btn-green:hover { background: #059669; }
+        .coin-box { font-size: 22px; font-weight: bold; color: #d97706; margin: 15px 0; background: #fffbe3; padding: 10px; border-radius: 8px; border: 1px solid #fef08a; }
+        input { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -17,35 +22,48 @@
     <div class="card">
         <h2>Social Exchange App</h2>
 
-        <!-- लॉगिन सेक्शन -->
+        <!-- 1. लॉगिन बटन -->
         <div id="auth-section">
             <button onclick="loginWithGoogle()">Google से सुरक्षित लॉगिन करें</button>
         </div>
 
-        <!-- यूज़र डैशबोर्ड (लॉगिन के बाद दिखेगा) -->
+        <!-- 2. यूज़र डैशबोर्ड -->
         <div id="user-section" style="display:none;">
-            <p>स्वागत है, <span id="user-name"></span>!</p>
+            <p style="font-size: 18px;">स्वागत है, <b id="user-name">...</b>!</p>
             <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
             
             <hr>
             
             <h3>1. वीडियो देखें और कॉइन कमाएं</h3>
-            <p>टास्क पूरा करके +5 कॉइन प्राप्त करें</p>
+            <p style="color: #666; font-size: 14px;">टास्क पूरा करके +5 कॉइन प्राप्त करें</p>
             <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
 
             <hr>
 
             <h3>2. ऑर्डर लगाएं</h3>
-            <input type="text" id="channel-link" placeholder="चैनल/वीडियो का लिंक दर्ज करें" style="width: 80%; padding: 8px; margin-bottom: 10px;">
-            <button onclick="placeOrder()" style="background: #10b981;">ऑर्डर लगाएं (10 Coins)</button>
+            <input type="text" id="channel-link" placeholder="चैनल या वीडियो का लिंक दर्ज करें">
+            <button onclick="placeOrder()" class="btn-green">ऑर्डर लगाएं (10 Coins)</button>
         </div>
     </div>
 
-    <!-- Firebase JavaScript SDK Integration -->
+    <!-- Firebase JS SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithRedirect, 
+            getRedirectResult, 
+            GoogleAuthProvider, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            increment 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -57,34 +75,51 @@
             appId: "1:478596117635:web:30059dwef46cca65d17bi"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // 1. Google Login (Redirect Method for Mobile)
-        window.loginWithGoogle = () => {
-            signInWithRedirect(auth, provider);
+        // 1. गूगल लॉगिन ट्रिगर
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithRedirect(auth, provider);
+            } catch (error) {
+                alert("Login Initiating Error: " + error.message);
+            }
         };
 
-        // 2. Auth State and Data Management
+        // 2. लॉगिन रिजल्ट और पेज लोड स्टेट
+        getRedirectResult(auth).catch((error) => {
+            if (error.code !== "auth/popup-closed-by-user") {
+                alert("Redirect Auth Error: " + error.message);
+            }
+        });
+
+        // 3. यूजर स्टेट मॉनिटर (लॉगिन ऑटो-डिटेक्ट)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-section').style.display = 'none';
                 document.getElementById('user-section').style.display = 'block';
-                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-name').innerText = user.displayName || "User";
 
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
 
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, {
-                        name: user.displayName,
-                        email: user.email,
-                        coins: 0
-                    });
-                } else {
-                    document.getElementById('coin-balance').innerText = userSnap.data().coins || 0;
+                    if (!userSnap.exists()) {
+                        await setDoc(userRef, {
+                            name: user.displayName || "User",
+                            email: user.email,
+                            coins: 0
+                        });
+                        document.getElementById('coin-balance').innerText = 0;
+                    } else {
+                        document.getElementById('coin-balance').innerText = userSnap.data().coins || 0;
+                    }
+                } catch (dbError) {
+                    alert("Database Load Error: " + dbError.message);
                 }
             } else {
                 document.getElementById('auth-section').style.display = 'block';
@@ -92,38 +127,45 @@
             }
         });
 
-        // Redirect परिणाम को हैंडल करें
-        getRedirectResult(auth).catch((error) => {
-            console.error("Login Redirect Error:", error);
-        });
-
-        // 3. Task Completion (Earn Coins)
+        // 4. टास्क पूरा करने पर कॉइन बढ़ाएं
         window.completeTask = async () => {
             const user = auth.currentUser;
-            if (user) {
+            if (!user) {
+                alert("कृपया पहले लॉगिन करें!");
+                return;
+            }
+
+            try {
                 const userRef = doc(db, "users", user.uid);
                 await updateDoc(userRef, { coins: increment(5) });
                 
                 const updatedSnap = await getDoc(userRef);
                 document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
                 alert("बधाई हो! आपको 5 कॉइन मिल गए हैं।");
+            } catch (error) {
+                alert("Task Error: " + error.message);
             }
         };
 
-        // 4. Order Placement (Spend Coins)
+        // 5. ऑर्डर लगाएं (कॉइन काटें)
         window.placeOrder = async () => {
             const user = auth.currentUser;
-            const link = document.getElementById('channel-link').value;
+            const link = document.getElementById('channel-link').value.trim();
 
             if (!link) {
                 alert("कृपया पहले लिंक दर्ज करें!");
                 return;
             }
 
-            if (user) {
+            if (!user) {
+                alert("कृपया पहले लॉगिन करें!");
+                return;
+            }
+
+            try {
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
-                const currentCoins = userSnap.data().coins || 0;
+                const currentCoins = userSnap.data()?.coins || 0;
 
                 if (currentCoins >= 10) {
                     await updateDoc(userRef, { coins: increment(-10) });
@@ -132,8 +174,10 @@
                     document.getElementById('channel-link').value = '';
                     alert("आपका ऑर्डर सफलतापूर्वक सबमिट हो गया है!");
                 } else {
-                    alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! (कम से कम 10 Coins चाहिए)");
+                    alert("पर्याप्त कॉइन्स नहीं हैं! (कम से कम 10 Coins चाहिए)");
                 }
+            } catch (error) {
+                alert("Order Error: " + error.message);
             }
         };
     </script>
