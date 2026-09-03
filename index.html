@@ -22,31 +22,31 @@
     <div class="card">
         <h2>Social Exchange App</h2>
 
-        <!-- 1. लॉगिन बटन -->
+        <!-- 1. लॉगिन सेक्शन -->
         <div id="auth-section">
-            <button onclick="loginWithGoogle()">Google से सुरक्षित लॉगिन करें</button>
+            <button onclick="loginWithGoogle()">Google से लॉगिन करें</button>
         </div>
 
         <!-- 2. यूज़र डैशबोर्ड -->
         <div id="user-section" style="display:none;">
-            <p style="font-size: 18px;">स्वागत है, <b id="user-name">...</b>!</p>
+            <p style="font-size: 18px;">नमस्ते, <b id="user-name">...</b>!</p>
             <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
             
             <hr>
             
-            <h3>1. वीडियो देखें और कॉइन कमाएं</h3>
+            <h3>1. कॉइन कमाएं</h3>
             <p style="color: #666; font-size: 14px;">टास्क पूरा करके +5 कॉइन प्राप्त करें</p>
             <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
 
             <hr>
 
             <h3>2. ऑर्डर लगाएं</h3>
-            <input type="text" id="channel-link" placeholder="चैनल या वीडियो का लिंक दर्ज करें">
+            <input type="text" id="channel-link" placeholder="चैनल या वीडियो का लिंक डालें">
             <button onclick="placeOrder()" class="btn-green">ऑर्डर लगाएं (10 Coins)</button>
         </div>
     </div>
 
-    <!-- Firebase JS SDK -->
+    <!-- Firebase CDN Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
@@ -65,23 +65,24 @@
             increment 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration
+        // अपडेटेड और सही Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBQSr1-enoonXS9Bp4FCVnTS6NGrs7ECXW",
+            apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
             authDomain: "socialexchange-338ec.firebaseapp.com",
             projectId: "socialexchange-338ec",
             storageBucket: "socialexchange-338ec.firebasestorage.app",
             messagingSenderId: "478596117635",
-            appId: "1:478596117635:web:30059dwef46cca65d17bi"
+            appId: "1:478596117635:web:30059daef46ccca05d57b6",
+            measurementId: "G-W3DN7CH8SV"
         };
 
-        // Initialize Firebase
+        // Firebase Initialization
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // 1. गूगल लॉगिन ट्रिगर
+        // 1. Google Login Call
         window.loginWithGoogle = async () => {
             try {
                 await signInWithRedirect(auth, provider);
@@ -90,14 +91,14 @@
             }
         };
 
-        // 2. लॉगिन रिजल्ट और पेज लोड स्टेट
+        // 2. Mobile Redirect Listener
         getRedirectResult(auth).catch((error) => {
             if (error.code !== "auth/popup-closed-by-user") {
-                alert("Redirect Auth Error: " + error.message);
+                alert("Redirect Error: " + error.message);
             }
         });
 
-        // 3. यूजर स्टेट मॉनिटर (लॉगिन ऑटो-डिटेक्ट)
+        // 3. Login State Monitor & Database Auto-Sync
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-section').style.display = 'none';
@@ -119,7 +120,7 @@
                         document.getElementById('coin-balance').innerText = userSnap.data().coins || 0;
                     }
                 } catch (dbError) {
-                    alert("Database Load Error: " + dbError.message);
+                    alert("Database Error: " + dbError.message);
                 }
             } else {
                 document.getElementById('auth-section').style.display = 'block';
@@ -127,7 +128,7 @@
             }
         });
 
-        // 4. टास्क पूरा करने पर कॉइन बढ़ाएं
+        // 4. Task Complete (+5 Coins)
         window.completeTask = async () => {
             const user = auth.currentUser;
             if (!user) {
@@ -141,13 +142,13 @@
                 
                 const updatedSnap = await getDoc(userRef);
                 document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
-                alert("बधाई हो! आपको 5 कॉइन मिल गए हैं।");
+                alert("बधाई हो! आपको 5 कॉइन मिल गए।");
             } catch (error) {
                 alert("Task Error: " + error.message);
             }
         };
 
-        // 5. ऑर्डर लगाएं (कॉइन काटें)
+        // 5. Place Order (-10 Coins)
         window.placeOrder = async () => {
             const user = auth.currentUser;
             const link = document.getElementById('channel-link').value.trim();
@@ -164,18 +165,12 @@
 
             try {
                 const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-                const currentCoins = userSnap.data()?.coins || 0;
-
-                if (currentCoins >= 10) {
-                    await updateDoc(userRef, { coins: increment(-10) });
-                    const updatedSnap = await getDoc(userRef);
-                    document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
-                    document.getElementById('channel-link').value = '';
-                    alert("आपका ऑर्डर सफलतापूर्वक सबमिट हो गया है!");
-                } else {
-                    alert("पर्याप्त कॉइन्स नहीं हैं! (कम से कम 10 Coins चाहिए)");
-                }
+                await updateDoc(userRef, { coins: increment(-10) });
+                
+                const updatedSnap = await getDoc(userRef);
+                document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
+                document.getElementById('channel-link').value = '';
+                alert("ऑर्डर सफलतापूर्वक लग गया!");
             } catch (error) {
                 alert("Order Error: " + error.message);
             }
