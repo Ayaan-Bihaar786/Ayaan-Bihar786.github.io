@@ -10,6 +10,7 @@
         h2, h3 { color: #333; margin-bottom: 15px; }
         button { background: #4285f4; color: white; border: none; padding: 12px 20px; margin: 8px 0; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; transition: 0.3s; }
         button:hover { background: #357ae8; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
         .btn-green { background: #10b981; }
         .btn-green:hover { background: #059669; }
         .btn-secondary { background: #6b7280; }
@@ -20,6 +21,9 @@
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 10px; background: #000; }
         .video-container iframe { position: absolute; top:0; left: 0; width: 100%; height: 100%; border: 0; }
         .rate-info { font-size: 13px; color: #2563eb; background: #eff6ff; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-weight: 500; }
+        .task-link-box { background: #f3f4f6; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-size: 14px; word-break: break-all; }
+        .task-link-box a { color: #2563eb; font-weight: bold; text-decoration: none; font-size: 16px; }
+        .timer-text { font-size: 14px; font-weight: bold; color: #dc2626; margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -39,25 +43,40 @@
             
             <hr>
             
-            <!-- वीडियो टास्क सेक्शन -->
-            <h3>1. कॉइन कमाएं (Watch & Like)</h3>
-            <div class="video-container">
-                <iframe id="youtube-player" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+            <!-- 1. स्मार्ट टाइमर टास्क सेक्शन -->
+            <h3>1. कॉइन कमाएं (Watch & Follow)</h3>
+            
+            <div id="task-container">
+                <div class="task-link-box" id="task-link-display">
+                    टास्क लोड हो रहा है...
+                </div>
+                
+                <div class="timer-text" id="timer-display" style="display:none;">
+                    कृपया इंस्टाग्राम पर फॉलो करें...
+                </div>
+
+                <div class="video-container" id="player-wrapper">
+                    <iframe id="youtube-player" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
             </div>
-            <button onclick="completeTask()" class="btn-green">लाइक / सब्सक्राइब किया (+5 Coins)</button>
-            <button onclick="nextVideo()" class="btn-secondary">अगला वीडियो (Next Video) ➔</button>
+
+            <button id="claim-btn" onclick="completeTask()" class="btn-green" disabled>लाइक / सब्सक्राइब / फॉलो किया (+5 Coins)</button>
+            <button onclick="loadNextTask()" class="btn-secondary">अगला टास्क (Next Task) ➔</button>
 
             <hr>
 
-            <!-- ऑर्डर सेक्शन -->
+            <!-- 2. ऑर्डर सेक्शन -->
             <h3>2. ऑर्डर लगाएं (Promote Your Link)</h3>
             
             <select id="order-type" onchange="calculateOutput()">
-                <option value="subs">Subscribers / Followers (1 Coin = 1000)</option>
-                <option value="likes">Likes (1 Coin = 125 Likes)</option>
+                <option value="subs">YouTube Subscribers / Followers (1 Coin = 1000)</option>
+                <option value="likes">YouTube Likes (1 Coin = 125 Likes)</option>
+                <option value="insta_followers">Instagram Followers (1 Coin = 1000)</option>
+                <option value="insta_likes">Instagram Likes (1 Coin = 125)</option>
+                <option value="fb_likes">Facebook Page Likes (1 Coin = 1000)</option>
             </select>
 
-            <input type="text" id="channel-link" placeholder="चैनल या वीडियो का लिंक डालें">
+            <input type="text" id="channel-link" placeholder="चैनल / पोस्ट / प्रोफाइल का लिंक डालें">
             <input type="number" id="coin-amount" placeholder="कितने कॉइन्स खर्च करना चाहते हैं?" min="1" oninput="calculateOutput()">
             
             <div class="rate-info" id="calculation-result">
@@ -85,6 +104,9 @@
             updateDoc, 
             collection,
             addDoc,
+            getDocs,
+            query,
+            limit,
             increment 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -103,16 +125,21 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // सैंपल YouTube वीडियो IDs
-        const sampleVideos = [
-            "dQw4w9WgXcQ",
-            "3JZ_D3ELwOQ",
-            "L_LUpnjgPso",
-            "fJ9rUzIMcZQ"
+        // आपका डिफ़ॉल्ट Instagram लिंक
+        const defaultAdminTasks = [
+            {
+                link: "https://www.instagram.com/ayaan_raj_786?igsi=OTE1NHNxdDVleGsx",
+                orderType: "insta_followers",
+                coinsSpent: 1000
+            }
         ];
-        let currentVideoIndex = 0;
 
-        // 1. Google Login (Popup Variant)
+        let activeOrders = [];
+        let currentTaskIndex = 0;
+        let isTaskOpened = false;
+        let timerInterval = null;
+
+        // 1. Google Login (Popup)
         window.loginWithGoogle = async () => {
             try {
                 await signInWithPopup(auth, provider);
@@ -121,7 +148,7 @@
             }
         };
 
-        // 2. Auth State Sync
+        // 2. Auth State Sync & Task Fetch
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-section').style.display = 'none';
@@ -142,6 +169,8 @@
                     } else {
                         document.getElementById('coin-balance').innerText = userSnap.data().coins || 0;
                     }
+
+                    await fetchTasks();
                 } catch (dbError) {
                     alert("Database Error: " + dbError.message);
                 }
@@ -151,10 +180,110 @@
             }
         });
 
-        // 3. Task Completion Logic
+        // 3. ऑर्डर्स लोड करना (अगर कोई ऑर्डर नहीं होगा तो आपका Instagram लिंक दिखेगा)
+        async function fetchTasks() {
+            try {
+                const q = query(collection(db, "orders"), limit(20));
+                const querySnapshot = await getDocs(q);
+                activeOrders = [];
+
+                querySnapshot.forEach((docSnap) => {
+                    activeOrders.push(docSnap.data());
+                });
+
+                if (activeOrders.length === 0) {
+                    activeOrders = [...defaultAdminTasks];
+                }
+
+                currentTaskIndex = 0;
+                displayCurrentTask();
+            } catch (error) {
+                console.error("Fetch Tasks Error:", error);
+                activeOrders = [...defaultAdminTasks];
+                displayCurrentTask();
+            }
+        }
+
+        // 4. टास्क डिस्प्ले करना
+        function displayCurrentTask() {
+            if (activeOrders.length === 0) return;
+
+            resetTimer();
+            const task = activeOrders[currentTaskIndex];
+            const displayBox = document.getElementById('task-link-display');
+            const playerWrapper = document.getElementById('player-wrapper');
+
+            displayBox.innerHTML = `👉 <a href="${task.link}" target="_blank" onclick="startSmartTimer()">यहाँ क्लिक करके इंस्टाग्राम पर फॉलो करें</a><br><small>(${getTaskLabel(task.orderType)})</small>`;
+
+            const youtubeId = extractVideoID(task.link);
+            if (youtubeId && (task.orderType === 'subs' || task.orderType === 'likes')) {
+                playerWrapper.style.display = 'block';
+                document.getElementById('youtube-player').src = `https://www.youtube-nocookie.com/embed/${youtubeId}`;
+            } else {
+                playerWrapper.style.display = 'none';
+            }
+        }
+
+        function getTaskLabel(type) {
+            if (type === 'subs') return 'YouTube Subscribe';
+            if (type === 'likes') return 'YouTube Like';
+            if (type === 'insta_followers') return 'Instagram Follow';
+            if (type === 'insta_likes') return 'Instagram Like';
+            if (type === 'fb_likes') return 'Facebook Like';
+            return 'Social Task';
+        }
+
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // 5. स्मार्ट टाइमर
+        window.startSmartTimer = () => {
+            isTaskOpened = true;
+            let timeLeft = 20;
+            const timerDisplay = document.getElementById('timer-display');
+            const claimBtn = document.getElementById('claim-btn');
+
+            timerDisplay.style.display = 'block';
+            claimBtn.disabled = true;
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = `कृपया इंस्टाग्राम पर फॉलो करें। सत्यापन में समय शेष: ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.innerText = "सत्यापन पूर्ण! अब बटन दबाकर कॉइन प्राप्त करें।";
+                    claimBtn.disabled = false;
+                }
+            }, 1000);
+        };
+
+        function resetTimer() {
+            isTaskOpened = false;
+            clearInterval(timerInterval);
+            document.getElementById('timer-display').style.display = 'none';
+            document.getElementById('claim-btn').disabled = true;
+        }
+
+        // 6. अगला टास्क
+        window.loadNextTask = () => {
+            if (activeOrders.length === 0) return;
+            currentTaskIndex = (currentTaskIndex + 1) % activeOrders.length;
+            displayCurrentTask();
+        };
+
+        // 7. कॉइन क्लेम करना
         window.completeTask = async () => {
             const user = auth.currentUser;
             if (!user) return alert("कृपया पहले लॉगिन करें!");
+
+            if (!isTaskOpened) {
+                return alert("Task Failed! पहले दिए गए लिंक पर क्लिक करके फॉलो/सब्सक्राइब करें।");
+            }
 
             try {
                 const userRef = doc(db, "users", user.uid);
@@ -162,45 +291,39 @@
                 
                 const updatedSnap = await getDoc(userRef);
                 document.getElementById('coin-balance').innerText = updatedSnap.data().coins;
-                alert("बधाई हो! टास्क पूरा करने के लिए आपको 5 कॉइन मिल गए।");
-                window.nextVideo();
+                alert("सत्यापन सफल! +5 कॉइन्स आपके खाते में जुड़ गए।");
+                
+                window.loadNextTask();
             } catch (error) {
                 alert("Task Error: " + error.message);
             }
         };
 
-        // 4. Next Video Logic
-        window.nextVideo = () => {
-            currentVideoIndex = (currentVideoIndex + 1) % sampleVideos.length;
-            const newVideoId = sampleVideos[currentVideoIndex];
-            document.getElementById('youtube-player').src = `https://www.youtube.com/embed/${newVideoId}`;
-        };
-
-        // 5. Rate Calculator Logic
+        // 8. रेट कैलकुलेटर
         window.calculateOutput = () => {
             const type = document.getElementById('order-type').value;
             const coins = parseInt(document.getElementById('coin-amount').value) || 0;
             const resultDiv = document.getElementById('calculation-result');
 
-            if (type === 'subs') {
+            if (type === 'subs' || type === 'insta_followers' || type === 'fb_likes') {
                 const count = coins * 1000;
-                resultDiv.innerText = `अनुमानित लाभ: ${count} Subscribers / Followers`;
+                resultDiv.innerText = `अनुमानित लाभ: ${count} Followers / Likes`;
             } else {
                 const count = coins * 125;
                 resultDiv.innerText = `अनुमानित लाभ: ${count} Likes`;
             }
         };
 
-        // 6. Place Order Logic
+        // 9. ऑर्डर प्लेस करना
         window.placeOrder = async () => {
             const user = auth.currentUser;
             const link = document.getElementById('channel-link').value.trim();
             const coinsToSpend = parseInt(document.getElementById('coin-amount').value);
             const orderType = document.getElementById('order-type').value;
 
-            if (!link) return alert("कृपया लिंक दर्ज करें!");
-            if (!coinsToSpend || coinsToSpend <= 0) return alert("कृपया कॉइन्स की सही संख्या दर्ज करें!");
-            if (!user) return alert("कृपया पहले लॉगिन करें!");
+            if (!link) return alert("कृपया सही लिंक दर्ज करें!");
+            if (!coinsToSpend || coinsToSpend <= 0) return alert("कृपया कॉइन्स दर्ज करें!");
+            if (!user) return alert("कृपया लॉगिन करें!");
 
             try {
                 const userRef = doc(db, "users", user.uid);
@@ -208,16 +331,14 @@
                 const currentCoins = userSnap.data().coins || 0;
 
                 if (currentCoins < coinsToSpend) {
-                    return alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! पहले और कॉइन्स कमाएं।");
+                    return alert("पर्याप्त कॉइन्स नहीं हैं! पहले कॉइन्स कमाएं।");
                 }
 
-                // Deduct Coins
                 await updateDoc(userRef, { coins: increment(-coinsToSpend) });
 
-                // Calculate Quantity
-                const quantity = orderType === 'subs' ? coinsToSpend * 1000 : coinsToSpend * 125;
+                const mult = (orderType === 'subs' || orderType === 'insta_followers' || orderType === 'fb_likes') ? 1000 : 125;
+                const quantity = coinsToSpend * mult;
 
-                // Save Order in Firestore
                 await addDoc(collection(db, "orders"), {
                     userId: user.uid,
                     userEmail: user.email,
@@ -233,7 +354,8 @@
                 document.getElementById('coin-amount').value = '';
                 window.calculateOutput();
 
-                alert(`ऑर्डर सफलतापूर्वक लग गया! ${quantity} ${orderType === 'subs' ? 'Subscribers/Followers' : 'Likes'} का ऑर्डर दर्ज कर लिया गया है।`);
+                alert("ऑर्डर लग गया! आपका लिंक अब लाइव टास्क में जोड़ दिया गया है।");
+                await fetchTasks();
             } catch (error) {
                 alert("Order Error: " + error.message);
             }
