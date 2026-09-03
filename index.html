@@ -5,243 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Social Exchange App</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
-    .app-card { background: white; width: 100%; max-width: 420px; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .title { color: #1a73e8; text-align: center; margin-bottom: 10px; }
-    .coin-box { background: #e8f0fe; text-align: center; padding: 12px; border-radius: 20px; font-weight: bold; color: #1a73e8; margin-bottom: 15px; font-size: 18px; }
-    .section { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-    .section-title { font-weight: bold; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
-    .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-    button { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; }
-    .btn-like { background-color: #34a853; }
-    .btn-follow { background-color: #e91e63; }
-    .btn-next { background-color: #ff9800; margin-top: 10px; width: 100%; }
-    .btn-order { background-color: #1a73e8; width: 100%; margin-top: 12px; font-size: 16px; }
-    .btn-open { background-color: #008cba; width: 100%; margin-top: 10px; display: none; padding: 12px; font-size: 15px; }
-    input, select { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    .video-container { width: 100%; height: 220px; border-radius: 8px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
-    iframe { width: 100%; height: 100%; border: none; }
+    body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
+    .card { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    button { background: #4285F4; color: white; border: none; padding: 10px 15px; margin: 10px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    button:hover { background: #357ae8; }
+    .coin-box { font-size: 20px; font-weight: bold; color: #d97706; margin: 15px 0; }
   </style>
-
-  <!-- Firebase Web SDK v8 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
 
-  <div class="app-card">
-    <h2 class="title">Social Exchange App</h2>
-
-    <div class="coin-box">
-      कुल कॉइन्स: <span id="coin-count">0.0</span> 🪙
+  <div class="card">
+    <h2>Social Exchange App</h2>
+    
+    <!-- लॉगिन सेक्शन -->
+    <div id="auth-section">
+      <button onclick="loginWithGoogle()">Google से सुरक्षित लॉगिन करें</button>
     </div>
 
-    <!-- सेक्शन 1: वीडियो/टास्क देखें और कॉइन कमाएं -->
-    <div class="section">
-      <div class="section-title">1. वीडियो देखें / टास्क पूरा करें (+5 कॉइन)</div>
-      <p style="font-size: 12px; color: #666;">
-        👍 1 लाइक = 5 कॉइन <br>
-        👤 1 फॉलो/सब्सक्राइब = 5 कॉइन
-      </p>
+    <!-- यूजर डैशबोर्ड (लॉगिन के बाद दिखेगा) -->
+    <div id="user-section" style="display:none;">
+      <p>स्वागत है, <span id="user-name"></span>!</p>
+      <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
       
-      <!-- प्ले-वीडियो का डिस्प्ले स्क्रीन -->
-      <div class="video-container" id="media-box">
-        <iframe id="video-frame" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
-      </div>
+      <hr>
+      
+      <h3>1. वीडियो देखें और कॉइन कमाएं</h3>
+      <p>टास्क पूरा करके +5 कॉइन्स प्राप्त करें</p>
+      <button onclick="completeTask()">टास्क पूरा किया (+5 Coin)</button>
 
-      <!-- Instagram/Facebook के लिए डायरेक्ट ओपन बटन -->
-      <button id="open-link-btn" class="btn-open" onclick="openExternalLink()">ऐप/वेबसाइट पर खोलकर लाइक करें ↗️</button>
+      <hr>
 
-      <div class="btn-group">
-        <button class="btn-like" onclick="addCoins(5)">लाइक किया (+5)</button>
-        <button class="btn-follow" onclick="addCoins(5)">फॉलो किया (+5)</button>
-      </div>
-
-      <button class="btn-next" onclick="nextVideo()">अगला वीडियो/टास्क बदलें ➡️</button>
-    </div>
-
-    <!-- सेक्शन 2: ऑर्डर लगाएं -->
-    <div class="section">
-      <div class="section-title">2. फॉलोवर, लाइक या व्यूज खरीदें</div>
-      <label>सर्विस चुनें:</label>
-      <select id="service-type">
-        <option value="5_followers">5000 Subscribers / Followers (लागत: 5 कॉइन)</option>
-        <option value="1_likes">125 Likes (लागत: 1 कॉइन)</option>
-        <option value="1_views">1000 Views (लागत: 1 कॉइन)</option>
-      </select>
-
-      <label style="margin-top: 10px; display:block;">अपने YouTube, FB या Insta का लिंक डालें:</label>
-      <input type="text" id="target-link" placeholder="https://youtube.com/... या Insta/FB पोस्ट/चैनल लिंक">
-
-      <button class="btn-order" onclick="placeOrder()">ऑर्डर लगाएं</button>
+      <h3>2. ऑर्डर लगाएं</h3>
+      <input type="text" id="channel-link" placeholder="चैनल/वीडियो का लिंक डालें" style="width: 80%; padding: 8px; margin-bottom: 10px;"><br>
+      <button onclick="placeOrder()" style="background: #16a34a;">ऑर्डर लगाएं (10 Coins)</button>
     </div>
   </div>
 
-  <script>
-    // Firebase Config
+  <!-- Firebase JavaScript SDK Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // आपकी स्क्रीन से प्राप्त Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyDniuxPSRNMcSA8uOP52O49VysDN6MdbDc",
-      authDomain: "socialapp-e5be3.firebaseapp.com",
-      projectId: "socialapp-e5be3",
-      storageBucket: "socialapp-e5be3.firebasestorage.app",
-      messagingSenderId: "747796450469",
-      appId: "1:747796450469:web:52aca31682c5b460c3114c"
+      apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
+      authDomain: "socialexchange-338ec.firebaseapp.com",
+      projectId: "socialexchange-338ec",
+      storageBucket: "socialexchange-338ec.firebasestorage.app",
+      messagingSenderId: "478596117635",
+      appId: "1:478596117635:web:30059daef46ccca05d57b6"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-    let userUID = null;
-    let videoList = [];
-    let currentVideoIndex = 0;
-    let currentRawLink = "";
+    // 1. Google Safe Sign-In
+    window.loginWithGoogle = async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-    // Anonymous Login
-    auth.signInAnonymously().then(cred => {
-      userUID = cred.user.uid;
-      loadUserCoins();
-      fetchPromotedVideos(); // ऑटोमैटिक लिंक्स फेच करेगा
-    }).catch(err => console.error("Login Error:", err));
-
-    // Load User Coins
-    function loadUserCoins() {
-      db.collection("users").doc(userUID).onSnapshot(doc => {
-        if (doc.exists) {
-          document.getElementById("coin-count").innerText = doc.data().coins.toFixed(1);
-        } else {
-          db.collection("users").doc(userUID).set({ coins: 0 });
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            name: user.displayName,
+            email: user.email,
+            coins: 0
+          });
         }
-      });
-    }
+      } catch (error) {
+        alert("लॉगिन में त्रुटि हुई: " + error.message);
+      }
+    };
 
-    // डेटाबेस से ऑर्डर किए गए सारे वीडियो/लिंक्स ऑटोमैटिक लोड करना
-    function fetchPromotedVideos() {
-      db.collection("orders").orderBy("createdAt", "desc").limit(30).get().then(snapshot => {
-        videoList = [];
-        snapshot.forEach(doc => {
-          let data = doc.data();
-          if (data.link) videoList.push(data.link);
-        });
+    // 2. यूजर का स्टेट और कॉइन बैलेंस संभालना
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        document.getElementById("auth-section").style.display = "none";
+        document.getElementById("user-section").style.display = "block";
+        document.getElementById("user-name").innerText = user.displayName;
 
-        // अगर डेटाबेस खाली हो तो डिफ़ॉल्ट डेमो लिंक्स
-        if (videoList.length === 0) {
-          videoList = [
-            "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            "https://www.youtube.com/embed/3JZ_D3ELwOQ"
-          ];
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          document.getElementById("coin-balance").innerText = userSnap.data().coins;
         }
-
-        displayCurrentMedia();
-      });
-    }
-
-    // YouTube, Facebook और Instagram लिंक्स को पहचानकर सही तरीके से दिखाना
-    function displayCurrentMedia() {
-      if (videoList.length === 0) return;
-      
-      let rawLink = videoList[currentVideoIndex];
-      currentRawLink = rawLink;
-      let frame = document.getElementById("video-frame");
-      let openBtn = document.getElementById("open-link-btn");
-
-      if (rawLink.includes("youtube.com") || rawLink.includes("youtu.be")) {
-        // YouTube वीडियो स्क्रीन पर दिखेगी
-        frame.style.display = "block";
-        openBtn.style.display = "none";
-        frame.src = convertToEmbedUrl(rawLink);
       } else {
-        // Instagram और Facebook सुरक्षा कारणों से ऐप में खोलने के लिए बटन दिखाएंगे
-        frame.style.display = "none";
-        openBtn.style.display = "block";
+        document.getElementById("auth-section").style.display = "block";
+        document.getElementById("user-section").style.display = "none";
       }
-    }
+    });
 
-    function openExternalLink() {
-      if (currentRawLink) window.open(currentRawLink, "_blank");
-    }
+    // 3. कॉइन्स बढ़ाना (+5 Coins)
+    window.completeTask = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
 
-    function convertToEmbedUrl(url) {
-      if (url.includes("youtube.com/watch?v=")) {
-        let videoId = url.split("v=")[1].split("&")[0];
-        return "https://www.youtube.com/embed/" + videoId;
-      } else if (url.includes("youtu.be/")) {
-        let videoId = url.split("youtu.be/")[1].split("?")[0];
-        return "https://www.youtube.com/embed/" + videoId;
-      }
-      return url;
-    }
-
-    // कॉइन जोड़ने का लॉजिक (+5 कॉइन प्रति लाइक/फॉलो)
-    function addCoins(amount) {
-      if (!userUID) return alert("लॉगिन हो रहा है, कृपया 2 सेकंड रुकें...");
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { coins: increment(5) });
       
-      db.collection("users").doc(userUID).update({
-        coins: firebase.firestore.FieldValue.increment(amount)
-      }).catch(err => {
-        db.collection("users").doc(userUID).set({ coins: amount }, { merge: true });
-      });
+      const userSnap = await getDoc(userRef);
+      document.getElementById("coin-balance").innerText = userSnap.data().coins;
+      alert("टास्क पूरा हुआ! आपको +5 कॉइन्स मिले।");
+    };
 
-      alert("बधाई हो! आपको " + amount + " कॉइन मिल गए हैं।");
-      nextVideo(); // ऑटोमैटिक अगला वीडियो बदल जाएगा
-    }
+    // 4. ऑर्डर लगाने का लॉजिक
+    window.placeOrder = async () => {
+      const user = auth.currentUser;
+      const link = document.getElementById("channel-link").value;
 
-    // अगला वीडियो बदलने का फंक्शन
-    function nextVideo() {
-      if (videoList.length > 0) {
-        currentVideoIndex = (currentVideoIndex + 1) % videoList.length;
-        displayCurrentMedia();
-      }
-    }
-
-    // नए रेट्स के हिसाब से ऑर्डर लगाने का फंक्शन
-    function placeOrder() {
-      const link = document.getElementById("target-link").value.trim();
-      const serviceValue = document.getElementById("service-type").value;
-
-      if (!link) return alert("कृपया लिंक दर्ज करें!");
-
-      let requiredCoins = 0;
-      let serviceName = "";
-
-      // रेट्स की गणना
-      if (serviceValue === "5_followers") {
-        requiredCoins = 5;
-        serviceName = "5000 Followers/Subscribers";
-      } else if (serviceValue === "1_likes") {
-        requiredCoins = 1;
-        serviceName = "125 Likes";
-      } else if (serviceValue === "1_views") {
-        requiredCoins = 1;
-        serviceName = "1000 Views";
+      if (!link) {
+        alert("कृपया चैनल या वीडियो का लिंक डालें!");
+        return;
       }
 
-      db.collection("users").doc(userUID).get().then(doc => {
-        const currentCoins = doc.data() ? doc.data().coins : 0;
-        if (currentCoins < requiredCoins) {
-          alert("आपके पास पर्याप्त कॉइन नहीं हैं! (कम से कम " + requiredCoins + " कॉइन चाहिए)");
-        } else {
-          // कॉइन काटना
-          db.collection("users").doc(userUID).update({
-            coins: firebase.firestore.FieldValue.increment(-requiredCoins)
-          });
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      const currentCoins = userSnap.data().coins;
 
-          // ऑर्डर सेव करना
-          db.collection("orders").add({
-            uid: userUID,
-            link: link,
-            service: serviceName,
-            cost: requiredCoins,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            alert(serviceName + " का ऑर्डर सफलतापूर्वक लग गया है!");
-            document.getElementById("target-link").value = "";
-            fetchPromotedVideos(); // वीडियो लिस्ट रिफ्रेश करें
-          });
-        }
-      });
-    }
+      if (currentCoins < 10) {
+        alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! कम से कम 10 कॉइन्स चाहिए।");
+        return;
+      }
+
+      await updateDoc(userRef, { coins: increment(-10) });
+      document.getElementById("coin-balance").innerText = currentCoins - 10;
+      document.getElementById("channel-link").value = "";
+      alert("ऑर्डर सफलतापूर्वक लग गया!");
+    };
   </script>
 </body>
 </html>
