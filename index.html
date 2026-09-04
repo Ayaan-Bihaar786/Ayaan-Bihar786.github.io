@@ -140,16 +140,16 @@
     </div>
 </div>
 
-<!-- Firebase CDN Module -->
+<!-- Firebase SDK (Stable Version) -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { 
     getAuth, 
     signInWithRedirect, 
     getRedirectResult, 
     GoogleAuthProvider, 
     onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { 
     getFirestore, 
     doc, 
@@ -162,7 +162,7 @@
     query, 
     limit, 
     increment 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBQSz1-enocnKS98p4FCVnTS6NGro7ECXU",
