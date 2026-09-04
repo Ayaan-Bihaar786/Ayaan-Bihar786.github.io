@@ -145,7 +145,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { 
     getAuth, 
-    signInWithPopup, 
+    signInWithRedirect, 
+    getRedirectResult, 
     GoogleAuthProvider, 
     onAuthStateChanged 
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -183,8 +184,12 @@
   let userFreeCompletedCount = 0;
 
   window.loginWithGoogle = function() {
-    signInWithPopup(auth, provider).catch(error => alert("लॉगिन एरर: " + error.message));
+    signInWithRedirect(auth, provider).catch(error => alert("लॉगिन एरर: " + error.message));
   };
+
+  getRedirectResult(auth).catch((error) => {
+    console.error("Redirect Error: ", error);
+  });
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -300,7 +305,6 @@
       return;
     }
 
-    // Update user coins and increment free completed count
     userFreeCompletedCount += 1;
     const userRef = doc(db, "users", currentUser.uid);
 
@@ -317,7 +321,7 @@
   };
 
   window.verifyAdminFollowFirst = function() {
-    window.open("https://www.instagram.com/purnia_me_so?igsh=MWYyOTByOGwzbXpsbg==", "_blank");
+    window.open("https://www.instagram.com/ayaan_raj_786?igsi=OTE1NHNxdDVleGsx", "_blank");
     alert("एडमिन पेज खुल गया है। फॉलो करने के बाद वापस आकर 'ऑर्डर सबमिट करें' पर क्लिक करें।");
     document.getElementById("place-order-btn").style.display = "block";
   };
@@ -382,4 +386,3 @@
 
 </body>
 </html>
-
