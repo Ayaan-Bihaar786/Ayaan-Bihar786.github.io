@@ -7,10 +7,10 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .card { background: white; padding: 20px; border-radius: 10px; max-width: 440px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        button { background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; }
+        button { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; font-weight: bold; }
         button:hover { background: #357ae8; }
         .hidden { display: none; }
-        #userInfo { margin-top: 15px; font-weight: bold; }
+        #userInfo { margin-top: 15px; font-weight: bold; color: #333; }
         .warning-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; text-align: left; border: 1px solid #ffeeba; }
         .payment-box { background: #e8f4fd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; }
         .task-link-box { background: #e2f0d9; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; border: 1px solid #c3e6cb; }
@@ -25,16 +25,16 @@
         <h2>Ayaan-Bihar786 Platform</h2>
         <p>P2P Social Media Growth & Chain System</p>
         
-        <!-- Login Button -->
-        <div id="loginSection">
-            <button id="loginBtn">Gmail से लॉगिन करें</button>
+        <div id="loginSection" style="margin-top: 30px; margin-bottom: 20px;">
+            <p style="font-size: 14px; color: #555; margin-bottom: 15px;">पार्टिसिपेट करने के लिए अपने जीमेल से सीधे लॉगिन करें:</p>
+            <button id="loginBtn" style="background: #db4437; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>🌐</span> Gmail से सीधे लॉगिन करें (1-Click)
+            </button>
         </div>
 
-        <!-- User Dashboard -->
         <div id="dashboardSection" class="hidden">
             <div id="userInfo"></div>
             
-            <!-- Warning / Trust Message -->
             <div class="warning-box">
                 <p><b>⚠️ महत्वपूर्ण चेतावनी:</b></p>
                 <p>यह बिल्कुल असली (Genuine) और सुरक्षित प्लेटफॉर्म है। यहाँ आपको 100% असली फॉलोवर्स, सब्सक्राइबर्स और लाइक्स मिलेंगे। असली और सुरक्षित होने के कारण सिस्टम धीरे-धीरे काम करता है, इसलिए सब्सक्राइबर, फॉलोवर्स और लाइक्स **धीरे-धीरे ही बढ़ेंगे**। धैर्य रखें!</p>
@@ -43,7 +43,6 @@
             <p style="margin-top: 15px;">मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
             <p style="margin-top: 5px; font-size: 16px; font-weight: bold; color: #333;">आपके कुल कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
             
-            <!-- URL & Spend Coins / Order Section -->
             <div class="input-group" style="background: #f9f9f9; padding: 12px; border-radius: 5px; border: 1px solid #ddd;">
                 <label>1. अपना सोशल मीडिया यूआरएल (URL) दें:</label>
                 <input type="text" id="userProfileUrl" placeholder="https://instagram.com/your_profile" style="margin-bottom: 10px;">
@@ -55,7 +54,6 @@
                 <button id="saveUrlAndSpendBtn" style="background: #28a745; margin-top: 0;">ऑर्डर दें & चेन में यूआरएल सेव करें</button>
             </div>
 
-            <!-- Automatic P2P Chain Target Box with Strict Verification Rule -->
             <div class="task-link-box">
                 <p><b>🔗 ऑटोमैटिक P2P चेन टास्क नियम:</b></p>
                 <p style="font-size: 12px; color: #333; margin-bottom: 8px;">नीचे दिए गए लिंक पर क्लिक करके यूजर को **फॉलो/सब्सक्राइब करना अनिवार्य है**। सिर्फ लिंक पर क्लिक करके वापस आ जाने से कॉइन नहीं मिलेगा!</p>
@@ -69,12 +67,10 @@
 
             <button id="taskBtn">फ्री टास्क पूरा करें (1 कॉइन लें)</button>
             
-            <!-- Auto UPI Payment & Verification Section (UPI ID Hidden) -->
             <div class="payment-box">
                 <p><b>कॉइन्स खरीदें (Auto UPI Recharge):</b></p>
                 <p style="font-size: 13px; margin: 5px 0;">रेट: ₹10 = 1 Coin = 40 Likes</p>
                 
-                <!-- Direct UPI Pay Intent Button -->
                 <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
                     <button style="background: #ff9800; margin-top: 8px;">📲 सीधे UPI ऐप से पेमेंट करें (Pay Now)</button>
                 </a>
@@ -94,7 +90,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (v9.22.2) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -131,7 +126,7 @@
         const paymentScreenshot = document.getElementById('paymentScreenshot');
         const submitPaymentBtn = document.getElementById('submitPaymentBtn');
 
-        // Gmail Login Handler
+        // One-Click Gmail Pop-up Login Handler
         loginBtn.addEventListener('click', () => {
             signInWithPopup(auth, provider)
             .then((result) => {
@@ -235,7 +230,7 @@
 
                 loadChainLink(user.uid);
 
-                // Task Button Click Logic with Strict Compliance Check & Limit
+                // Task Button Click Logic
                 taskBtn.onclick = async () => {
                     if (!linkVisitedCheck.checked) {
                         alert("⚠️ चेतावनी: बिना फॉलो किए कॉइन नहीं मिलेगा! कृपया पहले लिंक पर क्लिक करके फॉलो करें और फिर नीचे वाले बॉक्स पर टिक (Check) करें, तभी अगला स्टेप पूरा होगा!");
@@ -260,7 +255,6 @@
                     taskCountElem.innerText = currentTasks + 1;
                     userCoinsElem.innerText = currentCoins + 1;
                     
-                    // Reset checkbox and load next chain link automatically
                     linkVisitedCheck.checked = false;
                     loadChainLink(user.uid);
                     
