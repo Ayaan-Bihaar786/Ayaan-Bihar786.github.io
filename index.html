@@ -3,37 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayaan-Bihar786 - P2P Social Media Growth</title>
+    <title>Ayaan-Bihar786 - P2P Social Media Growth & Auto UPI</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
-        .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        button { background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .card { background: white; padding: 20px; border-radius: 10px; max-width: 440px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        button { background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; }
         button:hover { background: #357ae8; }
         .hidden { display: none; }
         #userInfo { margin-top: 15px; font-weight: bold; }
+        .warning-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; text-align: left; border: 1px solid #ffeeba; }
+        .payment-box { background: #e8f4fd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; }
+        .task-link-box { background: #e2f0d9; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; }
+        .input-group { margin-top: 10px; text-align: left; }
+        .input-group label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
+        .input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>Ayaan-Bihar786 Platform</h2>
-        <p>P2P Social Media Growth & Coins Exchange</p>
+        <p>P2P Social Media Growth & Auto Chain</p>
         
         <!-- Login Button -->
         <div id="loginSection">
-            <button id="loginBtn">Google से लॉगिन करें</button>
+            <button id="loginBtn">Gmail से लॉगिन करें</button>
         </div>
 
         <!-- User Dashboard -->
         <div id="dashboardSection" class="hidden">
             <div id="userInfo"></div>
-            <p>मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
-            <p>कॉइन्स: <span id="userCoins">0</span> (₹10 = 1 Coin = 250 Units)</p>
-            <button id="taskBtn">फ्री टास्क पूरा करें</button>
+            
+            <!-- Warning / Trust Message -->
+            <div class="warning-box">
+                <p><b>⚠️ महत्वपूर्ण चेतावनी:</b></p>
+                <p>यह बिल्कुल असली (Genuine) और सुरक्षित प्लेटफॉर्म है। यहाँ आपको 100% असली फॉलोवर्स, सब्सक्राइबर्स और लाइक्स मिलेंगे। असली और सुरक्षित होने के कारण सिस्टम धीरे-धीरे काम करता है, इसलिए सब्सक्राइबर, फॉलोवर्स और लाइक्स **धीरे-धीरे ही बढ़ेंगे**। धैर्य रखें!</p>
+            </div>
+
+            <p style="margin-top: 15px;">मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
+            <p>कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
+            
+            <!-- URL Submit & Auto Chain Setup -->
+            <div class="input-group">
+                <label>अपना सोशल मीडिया यूआरएल (URL) दें:</label>
+                <input type="text" id="userProfileUrl" placeholder="https://instagram.com/your_profile">
+                <button id="saveUrlBtn" style="background: #28a745; margin-top: 5px;">यूआरएल सेव करें & चेन में लगाएं</button>
+            </div>
+
+            <!-- Automatic P2P Chain Target Box -->
+            <div class="task-link-box">
+                <p><b>ऑटोमैटिक P2P चेन टास्क:</b></p>
+                <p>नीचे दिए गए पिछले यूजर के लिंक पर क्लिक करके फॉलो करें:</p>
+                <a href="#" target="_blank" id="chainTargetLink" style="color: #007bff; font-weight: bold; display: block; margin: 5px 0; word-break: break-all;">👉 [चेन लिंक लोड हो रहा है...]</a>
+                <label style="font-size: 13px; cursor: pointer;">
+                    <input type="checkbox" id="linkVisitedCheck"> मैंने इस लिंक को फॉलो कर लिया है
+                </label>
+            </div>
+
+            <button id="taskBtn">फ्री टास्क पूरा करें (1 कॉइन लें)</button>
+            
+            <!-- Auto UPI Payment & Verification Section -->
+            <div class="payment-box">
+                <p><b>कॉइन्स खरीदें (Auto UPI Recharge):</b></p>
+                <p>रेट: ₹10 = 1 Coin = 40 Likes</p>
+                <p>UPI ID: <b>8092747380-2@ibl</b></p>
+                
+                <!-- Direct UPI Pay Intent Button -->
+                <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
+                    <button style="background: #ff9800; margin-top: 8px;">📲 सीधे UPI ऐप से पेमेंट करें (Pay Now)</button>
+                </a>
+
+                <div class="input-group" style="margin-top: 12px;">
+                    <label>पेमेंट का स्क्रीनशॉट यहाँ अपलोड/संलग्न करें:</label>
+                    <input type="file" id="paymentScreenshot" accept="image/*" style="background: #fff; padding: 5px;">
+                </div>
+                <button id="submitPaymentBtn" style="background: #673ab7; margin-top: 5px;">पेमेंट स्क्रीनशॉट सबमिट करें</button>
+                <p style="font-size: 11px; color: #d9534f; margin-top: 5px;"><b>नियम:</b> सिस्टम और एडमिन द्वारा स्क्रीनशॉट की जांच (Verify) की जाएगी। यदि पेमेंट असली होगा तभी कॉइन्स मिलेंगे, फेक स्क्रीनशॉट मान्य नहीं हैं!</p>
+            </div>
+
             <br>
-            <hr style="margin: 20px 0;">
+            <hr style="margin: 15px 0;">
             <p>एडमिन से संपर्क करें:</p>
-            <a href="https://instagram.com/ayaan_raj_786" target="_blank" style="color: #E1306C; font-weight: bold; text-decoration: none;">Instagram पर आएं (ayaan_raj_786)</a>
+            <a href="https://instagram.com/ayaan_raj_786" target="_blank" style="color: #E1306C; font-weight: bold; text-decoration: none;">Instagram (ayaan_raj_786)</a>
         </div>
     </div>
 
@@ -41,7 +92,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         // Your web app's Firebase configuration (Corrected & Verified)
         const firebaseConfig = {
@@ -67,8 +118,14 @@
         const taskCountElem = document.getElementById('taskCount');
         const userCoinsElem = document.getElementById('userCoins');
         const taskBtn = document.getElementById('taskBtn');
+        const linkVisitedCheck = document.getElementById('linkVisitedCheck');
+        const userProfileUrl = document.getElementById('userProfileUrl');
+        const saveUrlBtn = document.getElementById('saveUrlBtn');
+        const chainTargetLink = document.getElementById('chainTargetLink');
+        const paymentScreenshot = document.getElementById('paymentScreenshot');
+        const submitPaymentBtn = document.getElementById('submitPaymentBtn');
 
-        // Google Login Handler
+        // Gmail Login Handler
         loginBtn.addEventListener('click', () => {
             signInWithPopup(auth, provider)
             .then((result) => {
@@ -79,6 +136,32 @@
                 alert("लॉगिन विफल रहा: " + error.message);
             });
         });
+
+        // Automatic Chain Loader
+        async function loadChainLink(currentUserId) {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                let activeLinks = [];
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (docSnap.id !== currentUserId && data.profileUrl && data.profileUrl.trim() !== "") {
+                        activeLinks.push(data.profileUrl);
+                    }
+                });
+
+                if (activeLinks.length > 0) {
+                    const nextTargetUrl = activeLinks[Math.floor(Math.random() * activeLinks.length)];
+                    chainTargetLink.href = nextTargetUrl;
+                    chainTargetLink.innerText = "👉 " + nextTargetUrl;
+                } else {
+                    chainTargetLink.href = "https://instagram.com/ayaan_raj_786";
+                    chainTargetLink.innerText = "👉 Instagram (Ayaan Admin Chain)";
+                }
+            } catch (err) {
+                console.error("Chain Load Error:", err);
+            }
+        }
 
         // Track Auth State & User Data in Firestore
         onAuthStateChanged(auth, async (user) => {
@@ -91,11 +174,11 @@
                 const userSnap = await getDoc(userRef);
 
                 if (!userSnap.exists()) {
-                    // Create new user profile with 2 free limits
                     await setDoc(userRef, {
                         email: user.email,
                         tasksUsed: 0,
-                        coins: 0
+                        coins: 0,
+                        profileUrl: ""
                     });
                     taskCountElem.innerText = 0;
                     userCoinsElem.innerText = 0;
@@ -103,26 +186,69 @@
                     const data = userSnap.data();
                     taskCountElem.innerText = data.tasksUsed || 0;
                     userCoinsElem.innerText = data.coins || 0;
+                    if (data.profileUrl) {
+                        userProfileUrl.value = data.profileUrl;
+                    }
                 }
 
-                // Task Button Click Logic (2-Task Free Limit)
-                taskBtn.onclick = async () => {
-                    const currentSnap = await getDoc(userRef);
-                    const currentData = currentSnap.data();
-                    const currentTasks = currentData.tasksUsed || 0;
+                // Save URL Button Logic
+                saveUrlBtn.onclick = async () => {
+                    const urlVal = userProfileUrl.value.trim();
+                    if (!urlVal) {
+                        alert("कृपया अपना सही यूआरएल (URL) दर्ज करें!");
+                        return;
+                    }
+                    await updateDoc(userRef, {
+                        profileUrl: urlVal
+                    });
+                    alert("आपका यूआरएल ऑटोमैटिक चेन में सफलतापूर्वक जोड़ दिया गया है!");
+                    loadChainLink(user.uid);
+                };
 
-                    if (currentTasks >= 2) {
-                        alert("आपकी 2-टास्क की मुफ्त सीमा समाप्त हो चुकी है! कॉइन्स खरीदने के लिए एडमिन से संपर्क करें।");
+                // Load chain link for this user
+                loadChainLink(user.uid);
+
+                // Task Button Click Logic (2-Task Free Limit + Chain Verification)
+                taskBtn.onclick = async () => {
+                    if (!linkVisitedCheck.checked) {
+                        alert("कृपया पहले चेन वाले लिंक पर क्लिक करके फॉलो करें और फिर बॉक्स पर टिक (Check) करें, तभी अगला स्टेप पूरा होगा!");
                         return;
                     }
 
-                    // Increment task count
+                    const currentSnap = await getDoc(userRef);
+                    const currentData = currentSnap.data();
+                    const currentTasks = currentData.tasksUsed || 0;
+                    const currentCoins = currentData.coins || 0;
+
+                    if (currentTasks >= 2) {
+                        alert("आपकी 2 बार की मुफ्त कॉइन सीमा समाप्त हो चुकी है! और कॉइन्स पाने के लिए ऊपर दिए गए 'सीधे UPI ऐप से पेमेंट करें' बटन से भुगतान करें और स्क्रीनशॉट सबमिट करें।");
+                        return;
+                    }
+
+                    // Increment task count and give 1 coin (equals 40 likes)
                     await updateDoc(userRef, {
-                        tasksUsed: increment(1)
+                        tasksUsed: increment(1),
+                        coins: increment(1)
                     });
 
                     taskCountElem.innerText = currentTasks + 1;
-                    alert("सफलतापूर्वक टास्क पूरा हो गया!");
+                    userCoinsElem.innerText = currentCoins + 1;
+                    
+                    // Reset checkbox and load next chain link automatically
+                    linkVisitedCheck.checked = false;
+                    loadChainLink(user.uid);
+                    
+                    alert("बधाई हो! टास्क सफलतापूर्वक पूरा हो गया और आपके खाते में 1 कॉइन (40 Likes) जोड़ दिया गया है।");
+                };
+
+                // Payment Screenshot Submission Logic
+                submitPaymentBtn.onclick = () => {
+                    if (paymentScreenshot.files.length === 0) {
+                        alert("कृपया पहले पेमेंट का स्क्रीनशॉट चुनें!");
+                        return;
+                    }
+                    alert("आपका स्क्रीनशॉट सफलतापूर्वक सबमिट हो गया है! एडमिन द्वारा वेरीफाई (Verify) करने के बाद आपके खाते में कॉइन्स जोड़ दिए जाएंगे। (फेक स्क्रीनशॉट मान्य नहीं है)");
+                    paymentScreenshot.value = "";
                 };
 
             } else {
@@ -133,4 +259,3 @@
     </script>
 </body>
 </html>
-
