@@ -44,8 +44,15 @@
             </div>
 
             <p style="margin-top: 15px;">मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
-            <p style="margin-top: 5px; font-size: 16px; font-weight: bold; color: #333;">आपके कुल कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
+            <p style="margin-top: 5px; font-size: 16px; font-weight: bold; color: #333;">आपके कुल कॉइन्स: <span id="userCoins">0</span></p>
             
+            <!-- Rates Information Box -->
+            <div style="background: #eef2f3; padding: 8px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #333; border: 1px solid #dcdcdc;">
+                <p style="margin: 2px 0;"><b>🎯 कॉइन वैल्यू रेट्स:</b></p>
+                <p style="margin: 2px 0;">• 1 Coin = <b>250 फॉलोवर्स या सब्सक्राइबर्स</b></p>
+                <p style="margin: 2px 0;">• 1 Coin = <b>40 लाइक्स</b></p>
+            </div>
+
             <!-- URL & Spend Coins / Order Section -->
             <div class="input-group" style="background: #f9f9f9; padding: 12px; border-radius: 5px; border: 1px solid #ddd;">
                 <label>1. अपना सोशल मीडिया यूआरएल (URL) दें:</label>
@@ -53,7 +60,7 @@
                 
                 <label>2. खर्च करने के लिए कॉइन्स की संख्या:</label>
                 <input type="number" id="spendCoinsInput" placeholder="जैसे: 1 या 2 कॉइन" min="1" style="margin-bottom: 6px;">
-                <p style="font-size: 11px; color: #666; margin: 0 0 10px 0;">(1 Coin खर्च करने पर 40 लाइक्स/फॉलोवर्स का ऑर्डर लगेगा)</p>
+                <p style="font-size: 11px; color: #666; margin: 0 0 10px 0;">(1 Coin खर्च करने पर 250 फॉलोवर्स/सब्सक्राइबर्स या 40 लाइक्स का ऑर्डर लगेगा)</p>
 
                 <button id="saveUrlAndSpendBtn" style="background: #28a745; margin-top: 0;">ऑर्डर दें & चेन में यूआरएल सेव करें</button>
             </div>
@@ -75,7 +82,7 @@
             <!-- Auto UPI Payment & Verification Section -->
             <div class="payment-box">
                 <p><b>कॉइन्स खरीदें (Auto UPI Recharge):</b></p>
-                <p style="font-size: 13px; margin: 5px 0;">रेट: ₹10 = 1 Coin = 40 Likes</p>
+                <p style="font-size: 13px; margin: 5px 0;">रेट: ₹10 = 1 Coin (250 Follow/Sub या 40 Likes)</p>
                 
                 <!-- Direct UPI Pay Intent Button -->
                 <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
@@ -134,7 +141,7 @@
         const paymentScreenshot = document.getElementById('paymentScreenshot');
         const submitPaymentBtn = document.getElementById('submitPaymentBtn');
 
-        // Redirect Login Handler (Fixes popup-blocked error on mobile/Instagram browsers)
+        // Redirect Login Handler
         loginBtn.addEventListener('click', () => {
             signInWithRedirect(auth, provider).catch((error) => {
                 console.error("Login Error:", error.message);
@@ -142,7 +149,6 @@
             });
         });
 
-        // Handle Redirect Result
         getRedirectResult(auth).catch((error) => {
             console.error("Redirect Error:", error.message);
         });
@@ -233,7 +239,7 @@
                     userCoinsElem.innerText = currentCoins - spendVal;
                     spendCoinsInput.value = "";
 
-                    alert(`सफलतापूर्वक ${spendVal} कॉइन खर्च करके ${spendVal * 40} लाइक्स/फॉलोवर्स का ऑर्डर दे दिया गया है और यूआरएल चेन में जुड़ गया है!`);
+                    alert(`सफलतापूर्वक ${spendVal} कॉइन खर्च करके ${spendVal * 250} फॉलोवर्स/सब्सक्राइबर्स (या ${spendVal * 40} लाइक्स) का ऑर्डर दे दिया गया है और यूआरएल चेन में जुड़ गया है!`);
                     loadChainLink(user.uid);
                 };
 
