@@ -3,386 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Exchange App</title>
+    <title>Ayaan-Bihar786 - P2P Social Media Growth</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f4f4f9; padding: 10px; margin: 0; }
-        .card { background: white; padding: 25px; max-width: 450px; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2, h3 { color: #333; margin-bottom: 15px; }
-        button { background: #4285f4; color: white; border: none; padding: 12px 20px; margin: 8px 0; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
+        body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        button { background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
         button:hover { background: #357ae8; }
-        button:disabled { background: #9ca3af; cursor: not-allowed; }
-        .btn-green { background: #10b981; }
-        .btn-green:hover { background: #059669; }
-        .btn-purple { background: #8b5cf6; }
-        .btn-purple:hover { background: #7c3aed; }
-        .btn-secondary { background: #6b7280; }
-        .btn-secondary:hover { background: #4b5563; }
-        .coin-box { font-size: 22px; font-weight: bold; color: #d97706; margin: 15px 0; background: #fffbe2; padding: 10px; border-radius: 8px; border: 1px solid #fde68a; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
-        .rate-info { font-size: 13px; color: #2563eb; background: #eff6ff; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; }
-        .task-link-box { background: #f3f4f6; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-size: 14px; word-break: break-all; }
-        .task-link-box a { color: #2563eb; font-weight: bold; text-decoration: none; font-size: 16px; }
-        .timer-text { font-size: 14px; color: #dc2626; font-weight: bold; margin: 5px 0; }
-        .warning-banner { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; text-align: left; }
-        .trust-banner { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: left; }
-        .payment-box { background: #f0fdf4; border: 1px solid #86efac; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
-        .qr-img { width: 200px; height: 200px; max-width: 100%; margin: 10px auto; display: block; border-radius: 8px; border: 2px solid #10b981; }
+        .hidden { display: none; }
+        #userInfo { margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Social Exchange App</h2>
-    
-    <div class="trust-banner">
-        ✅ <b>100% असली एवं सुरक्षित:</b> यह प्लेटफॉर्म पूरी तरह असली है। यहाँ आपको रियल फॉलोअर्स मिलते हैं। फ्री लिमिट समाप्त होने पर कृपया कॉइन खरीदें।
+    <div class="card">
+        <h2>Ayaan-Bihar786 Platform</h2>
+        <p>P2P Social Media Growth & Coins Exchange</p>
+        
+        <!-- Login Button -->
+        <div id="loginSection">
+            <button id="loginBtn">Google से लॉगिन करें</button>
+        </div>
+
+        <!-- User Dashboard -->
+        <div id="dashboardSection" class="hidden">
+            <div id="userInfo"></div>
+            <p>मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
+            <p>कॉइन्स: <span id="userCoins">0</span> (₹10 = 1 Coin = 250 Units)</p>
+            <button id="taskBtn">फ्री टास्क पूरा करें</button>
+            <br>
+            <hr style="margin: 20px 0;">
+            <p>एडमिन से संपर्क करें:</p>
+            <a href="https://instagram.com/ayaan_raj_786" target="_blank" style="color: #E1306C; font-weight: bold; text-decoration: none;">Instagram पर आएं (ayaan_raj_786)</a>
+        </div>
     </div>
 
-    <!-- 1. लॉगिन सेक्शन -->
-    <div id="auth-section">
-        <button onclick="loginWithGoogle()">Google से लॉगिन करें</button>
-    </div>
+    <!-- Firebase SDKs (v9.22.2) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    <!-- 2. यूज़र डैशबोर्ड -->
-    <div id="user-section" style="display:none;">
-        <p style="font-size: 18px; margin: 5px 0;">नमस्ते, <span id="user-name">...</span>!</p>
-        <div class="coin-box">कुल कॉइन्स: <span id="coin-balance">0</span> 🪙</div>
-        
-        <hr>
+        // Your web app's Firebase configuration (Corrected & Verified)
+        const firebaseConfig = {
+          apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
+          authDomain: "socialexchange-338ec.firebaseapp.com",
+          projectId: "socialexchange-338ec",
+          storageBucket: "socialexchange-338ec.firebasestorage.app",
+          messagingSenderId: "478596117635",
+          appId: "1:478596117635:web:30059daef46ccca05d57b6",
+          measurementId: "G-W3DN7CH8SV"
+        };
 
-        <!-- 1. कॉइन कमाएं (Limit: Max 2 Times) -->
-        <h3>1. फ्री कॉइन कमाएं (Max 2 Times)</h3>
-        
-        <div class="warning-banner" id="limit-warning">
-            ⚠️ <b>नियम:</b> एक जीमेल अकाउंट से आप केवल **2 बार** ही फ्री टास्क पूरा करके कॉइन कमा सकते हैं। (शेष फ्री चांस: <span id="free-attempts-left">2</span>)
-        </div>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-        <div id="task-container">
-            <div class="task-link-box" id="task-link-display">
-                टास्क लोड हो रहा है...
-            </div>
-            
-            <div class="timer-text" id="timer-display" style="display: none;">
-                कृपया पेज पर रुकें...
-            </div>
-            
-            <button id="claim-btn" onclick="completeTask()" class="btn-green" disabled>लाइव / सब्सक्राइब पूरा किया (+1 Coin)</button>
-            <button id="next-task-btn" onclick="loadNextTask()" class="btn-secondary">अगला टास्क (Next Task) ➔</button>
-        </div>
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const userInfo = document.getElementById('userInfo');
+        const taskCountElem = document.getElementById('taskCount');
+        const userCoinsElem = document.getElementById('userCoins');
+        const taskBtn = document.getElementById('taskBtn');
 
-        <hr>
-
-        <!-- 2. ऑर्डर लगाएं -->
-        <h3>2. ऑर्डर लगाएं (Promote Your Link)</h3>
-        
-        <div class="trust-banner" style="background:#fff7ed; border-color:#ffedd5; color:#c2410c;">
-            👉 <b>फ्री प्रमोशन नियम:</b> अपना लिंक सबमिट करने से पहले आपको एडमिन प्रोफाइल को फॉलो करना होगा।
-        </div>
-
-        <select id="order-type" onchange="calculateOutput()">
-            <option value="subs">YouTube Subscribers (1 Coin = 250 Subs)</option>
-            <option value="likes">YouTube Video Likes (1 Coin = 250 Likes)</option>
-            <option value="insta_followers">Instagram Followers (1 Coin = 250 Followers)</option>
-            <option value="insta_likes">Instagram Likes (1 Coin = 250 Likes)</option>
-            <option value="fb_likes">Facebook Page Likes (1 Coin = 250 Likes)</option>
-        </select>
-
-        <input type="text" id="channel-link" placeholder="चैनल / पोस्ट / प्रोफाइल का URL लिंक डालें">
-        <input type="number" id="coin-amount" placeholder="कितने कॉइन्स खर्च करना चाहते हैं?" min="1" oninput="calculateOutput()">
-        
-        <div class="rate-info" id="calculation-result">
-            अनुमानित लाभ: 0
-        </div>
-
-        <button onclick="verifyAdminFollowFirst()" class="btn-purple">1. पहले एडमिन को फॉलो करें</button>
-        <button id="place-order-btn" onclick="placeOrder()" class="btn-green" style="display:none; margin-top:5px;">2. ऑर्डर सबमिट करें</button>
-
-        <hr>
-
-        <!-- 3. कॉइन खरीदें -->
-        <h3>3. कॉइन खरीदें (Buy Coins)</h3>
-        
-        <div class="warning-banner">
-            🎯 <b>रेट प्लान:</b> ₹10 = 1 Coin (1 Coin = 250 Subscribers/Followers)<br>
-            <b>UPI ID:</b> <span style="color:#000; font-weight:bold;">8092747380-2@ibl</span><br>
-            <b>पेमेंट चेतावनी:</b> पैसे भेजने के बाद सही UTR / Transaction ID दर्ज करें।
-        </div>
-
-        <div class="payment-box">
-            📲 <b>डायरेक्ट पेमेंट करें (क्लिक करें):</b><br><br>
-
-            <!-- PhonePe Intent Button -->
-            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
-                <button style="background: #5f259f; margin-bottom: 6px;">Pay with PhonePe</button>
-            </a>
-
-            <!-- Google Pay Intent Button -->
-            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
-                <button style="background: #1a73e8; margin-bottom: 6px;">Pay with Google Pay</button>
-            </a>
-
-            <!-- Paytm Intent Button -->
-            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
-                <button style="background: #00b9f1; margin-bottom: 12px;">Pay with Paytm</button>
-            </a>
-
-            <hr style="margin: 10px 0; background: #d1fae5;">
-            <p style="font-size: 12px; color: #047857; margin: 5px 0;">या नीचे दिए गए QR कोड को स्कैन करें:</p>
-            
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" alt="UPI QR Code" class="qr-img">
-        </div>
-
-        <input type="number" id="pay-amount" placeholder="कितने रुपये ट्रांसफर किए? (जैसे: 10, 20, 50)" min="10">
-        <input type="text" id="pay-utr" placeholder="Transaction ID / UTR नंबर दर्ज करें">
-        
-        <button onclick="submitPaymentProof()" class="btn-purple">पेमेंट प्रूफ सबमिट करें</button>
-    </div>
-</div>
-
-<!-- Firebase CDN Module -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { 
-    getAuth, 
-    signInWithRedirect, 
-    getRedirectResult, 
-    GoogleAuthProvider, 
-    onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { 
-    getFirestore, 
-    doc, 
-    getDoc, 
-    setDoc, 
-    updateDoc, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    limit, 
-    increment 
-  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBQSz1-enocnKS98p4FCVnTS6NGro7ECXU",
-    authDomain: "socialexchange-318ec.firebaseapp.com",
-    projectId: "socialexchange-318ec",
-    storageBucket: "socialexchange-318ec.firebasestorage.app",
-    messagingSenderId: "478596117635",
-    appId: "1:478596117635:web:30059daef4ccca05d57b1c",
-    measurementId: "G-W3DN7CH8SV"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-
-  let currentUser = null;
-  let currentTaskData = null;
-  let userFreeCompletedCount = 0;
-
-  window.loginWithGoogle = function() {
-    signInWithRedirect(auth, provider).catch(error => alert("लॉगिन एरर: " + error.message));
-  };
-
-  getRedirectResult(auth).catch((error) => {
-    console.error("Redirect Error: ", error);
-  });
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      currentUser = user;
-      document.getElementById("auth-section").style.display = "none";
-      document.getElementById("user-section").style.display = "block";
-      document.getElementById("user-name").innerText = user.displayName;
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          name: user.displayName,
-          email: user.email,
-          coins: 0,
-          freeCompletedCount: 0,
-          adminFollowed: false
+        // Google Login Handler
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+            .then((result) => {
+                console.log("Login Success:", result.user.email);
+            })
+            .catch((error) => {
+                console.error("Login Error:", error.message);
+                alert("लॉगिन विफल रहा: " + error.message);
+            });
         });
-        userFreeCompletedCount = 0;
-      } else {
-        userFreeCompletedCount = userSnap.data().freeCompletedCount || 0;
-      }
 
-      updateUserCoinsUI();
-      checkFreeLimitAndLoadTask();
-    }
-  });
+        // Track Auth State & User Data in Firestore
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                userInfo.innerText = `स्वागत है, ${user.displayName || user.email}`;
 
-  async function updateUserCoinsUI() {
-    if (!currentUser) return;
-    const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-    if (userSnap.exists()) {
-      document.getElementById("coin-balance").innerText = userSnap.data().coins || 0;
-      userFreeCompletedCount = userSnap.data().freeCompletedCount || 0;
-      
-      let left = 2 - userFreeCompletedCount;
-      if(left < 0) left = 0;
-      document.getElementById("free-attempts-left").innerText = left;
-    }
-  }
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
 
-  window.calculateOutput = function() {
-    const coins = parseInt(document.getElementById("coin-amount").value) || 0;
-    const units = coins * 250;
-    document.getElementById("calculation-result").innerText = `अनुमानित लाभ: ${units} (Followers / Likes / Subs)`;
-  };
+                if (!userSnap.exists()) {
+                    // Create new user profile with 2 free limits
+                    await setDoc(userRef, {
+                        email: user.email,
+                        tasksUsed: 0,
+                        coins: 0
+                    });
+                    taskCountElem.innerText = 0;
+                    userCoinsElem.innerText = 0;
+                } else {
+                    const data = userSnap.data();
+                    taskCountElem.innerText = data.tasksUsed || 0;
+                    userCoinsElem.innerText = data.coins || 0;
+                }
 
-  window.checkFreeLimitAndLoadTask = function() {
-    if (userFreeCompletedCount >= 2) {
-      document.getElementById("task-link-display").innerHTML = "❌ <b>फ्री लिमिट समाप्त!</b> आप इस जीमेल से मिलने वाले 2 फ्री टास्क पूरे कर चुके हैं। अब कॉइन पाने के लिए कृपया '3. कॉइन खरीदें' सेक्शन से पेमेंट करके कॉइन प्राप्त करें।";
-      document.getElementById("claim-btn").style.display = "none";
-      document.getElementById("next-task-btn").style.display = "none";
-      document.getElementById("timer-display").style.display = "none";
-      return;
-    }
-    loadNextTask();
-  };
+                // Task Button Click Logic (2-Task Free Limit)
+                taskBtn.onclick = async () => {
+                    const currentSnap = await getDoc(userRef);
+                    const currentData = currentSnap.data();
+                    const currentTasks = currentData.tasksUsed || 0;
 
-  window.loadNextTask = async function() {
-    if (userFreeCompletedCount >= 2) return;
+                    if (currentTasks >= 2) {
+                        alert("आपकी 2-टास्क की मुफ्त सीमा समाप्त हो चुकी है! कॉइन्स खरीदने के लिए एडमिन से संपर्क करें।");
+                        return;
+                    }
 
-    document.getElementById("claim-btn").disabled = true;
-    document.getElementById("timer-display").style.display = "none";
-    document.getElementById("task-link-display").innerHTML = "टास्क लोड हो रहा है...";
+                    // Increment task count
+                    await updateDoc(userRef, {
+                        tasksUsed: increment(1)
+                    });
 
-    const q = query(collection(db, "orders"), limit(10));
-    const querySnapshot = await getDocs(q);
+                    taskCountElem.innerText = currentTasks + 1;
+                    alert("सफलतापूर्वक टास्क पूरा हो गया!");
+                };
 
-    let tasks = [];
-    querySnapshot.forEach((docSnap) => {
-      if (docSnap.data().coinsRemaining > 0) {
-        tasks.push({ id: docSnap.id, ...docSnap.data() });
-      }
-    });
-
-    if (tasks.length === 0) {
-      document.getElementById("task-link-display").innerHTML = "अभी कोई नया टास्क उपलब्ध नहीं है। कृपया बाद में प्रयास करें!";
-      return;
-    }
-
-    currentTaskData = tasks[Math.floor(Math.random() * tasks.length)];
-    document.getElementById("task-link-display").innerHTML = `
-      👉 <a href="${currentTaskData.link}" target="_blank" onclick="startTaskTimer()">${currentTaskData.link}</a>
-      <br><small>(${currentTaskData.type})</small>
-    `;
-  };
-
-  window.startTaskTimer = function() {
-    if (userFreeCompletedCount >= 2) return;
-    document.getElementById("timer-display").style.display = "block";
-    let secondsLeft = 10;
-    document.getElementById("timer-display").innerText = `कृपया कम से कम ${secondsLeft} सेकंड पेज पर रुकें...`;
-
-    const interval = setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft > 0) {
-        document.getElementById("timer-display").innerText = `कृपया कम से कम ${secondsLeft} सेकंड पेज पर रुकें...`;
-      } else {
-        clearInterval(interval);
-        document.getElementById("timer-display").innerText = "समय पूरा हुआ! अब आप बटन दबाकर कॉइन प्राप्त कर सकते हैं।";
-        document.getElementById("claim-btn").disabled = false;
-      }
-    }, 1000);
-  };
-
-  window.completeTask = async function() {
-    if (!currentUser || !currentTaskData) return;
-    
-    if (userFreeCompletedCount >= 2) {
-      alert("आपकी फ्री लिमिट समाप्त हो चुकी है!");
-      checkFreeLimitAndLoadTask();
-      return;
-    }
-
-    userFreeCompletedCount += 1;
-    const userRef = doc(db, "users", currentUser.uid);
-
-    await updateDoc(userRef, { 
-      coins: increment(1),
-      freeCompletedCount: userFreeCompletedCount
-    });
-    
-    await updateDoc(doc(db, "orders", currentTaskData.id), { coinsRemaining: increment(-1) });
-
-    alert("बधाई हो! आपको 1 फ्री कॉइन मिल गया है।");
-    updateUserCoinsUI();
-    checkFreeLimitAndLoadTask();
-  };
-
-  window.verifyAdminFollowFirst = function() {
-    window.open("https://www.instagram.com/ayaan_raj_786?igsi=OTE1NHNxdDVleGsx", "_blank");
-    alert("एडमिन पेज खुल गया है। फॉलो करने के बाद वापस आकर 'ऑर्डर सबमिट करें' पर क्लिक करें।");
-    document.getElementById("place-order-btn").style.display = "block";
-  };
-
-  window.placeOrder = async function() {
-    const type = document.getElementById("order-type").value;
-    const link = document.getElementById("channel-link").value.trim();
-    const coins = parseInt(document.getElementById("coin-amount").value);
-
-    if (!link || !coins || coins < 1) {
-      alert("कृपया सही लिंक और कॉइन्स दर्ज करें!");
-      return;
-    }
-
-    const userRef = doc(db, "users", currentUser.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.data().coins < coins) {
-      alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! कृपया ऊपर दिए गए UPI से पेमेंट करके कॉइन खरीदें।");
-      return;
-    }
-
-    await updateDoc(userRef, { coins: increment(-coins) });
-    await addDoc(collection(db, "orders"), {
-      userId: currentUser.uid,
-      type: type,
-      link: link,
-      coinsAllocated: coins,
-      coinsRemaining: coins,
-      createdAt: new Date()
-    });
-
-    alert("आपका ऑर्डर सफलतापूर्वक दर्ज हो गया है!");
-    document.getElementById("channel-link").value = "";
-    document.getElementById("coin-amount").value = "";
-    updateUserCoinsUI();
-  };
-
-  window.submitPaymentProof = async function() {
-    const amount = document.getElementById("pay-amount").value;
-    const utr = document.getElementById("pay-utr").value.trim();
-
-    if (!amount || !utr) {
-      alert("कृपया ट्रांसफर की गई राशि और UTR नंबर दोनों दर्ज करें!");
-      return;
-    }
-
-    await addDoc(collection(db, "payments"), {
-      userId: currentUser.uid,
-      userName: currentUser.displayName,
-      amount: amount,
-      utr: utr,
-      status: "pending",
-      submittedAt: new Date()
-    });
-
-    alert("पेमेंट प्रूफ जमा हो गया है! वेरीफाई होने के बाद आपके अकाउंट में कॉइन जोड़ दिए जाएंगे।");
-    document.getElementById("pay-amount").value = "";
-    document.getElementById("pay-utr").value = "";
-  };
-</script>
-
+            } else {
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
+
