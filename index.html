@@ -25,6 +25,7 @@
         <h2>Ayaan-Bihar786 Platform</h2>
         <p>P2P Social Media Growth & Chain System</p>
         
+        <!-- Redirect Gmail Login Section -->
         <div id="loginSection" style="margin-top: 30px; margin-bottom: 20px;">
             <p style="font-size: 14px; color: #555; margin-bottom: 15px;">पार्टिसिपेट करने के लिए अपने जीमेल से सीधे लॉगिन करें:</p>
             <button id="loginBtn" style="background: #db4437; display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -32,9 +33,11 @@
             </button>
         </div>
 
+        <!-- User Dashboard -->
         <div id="dashboardSection" class="hidden">
             <div id="userInfo"></div>
             
+            <!-- Warning / Trust Message -->
             <div class="warning-box">
                 <p><b>⚠️ महत्वपूर्ण चेतावनी:</b></p>
                 <p>यह बिल्कुल असली (Genuine) और सुरक्षित प्लेटफॉर्म है। यहाँ आपको 100% असली फॉलोवर्स, सब्सक्राइबर्स और लाइक्स मिलेंगे। असली और सुरक्षित होने के कारण सिस्टम धीरे-धीरे काम करता है, इसलिए सब्सक्राइबर, फॉलोवर्स और लाइक्स **धीरे-धीरे ही बढ़ेंगे**। धैर्य रखें!</p>
@@ -43,6 +46,7 @@
             <p style="margin-top: 15px;">मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
             <p style="margin-top: 5px; font-size: 16px; font-weight: bold; color: #333;">आपके कुल कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
             
+            <!-- URL & Spend Coins / Order Section -->
             <div class="input-group" style="background: #f9f9f9; padding: 12px; border-radius: 5px; border: 1px solid #ddd;">
                 <label>1. अपना सोशल मीडिया यूआरएल (URL) दें:</label>
                 <input type="text" id="userProfileUrl" placeholder="https://instagram.com/your_profile" style="margin-bottom: 10px;">
@@ -54,6 +58,7 @@
                 <button id="saveUrlAndSpendBtn" style="background: #28a745; margin-top: 0;">ऑर्डर दें & चेन में यूआरएल सेव करें</button>
             </div>
 
+            <!-- Automatic P2P Chain Target Box with Strict Verification Rule -->
             <div class="task-link-box">
                 <p><b>🔗 ऑटोमैटिक P2P चेन टास्क नियम:</b></p>
                 <p style="font-size: 12px; color: #333; margin-bottom: 8px;">नीचे दिए गए लिंक पर क्लिक करके यूजर को **फॉलो/सब्सक्राइब करना अनिवार्य है**। सिर्फ लिंक पर क्लिक करके वापस आ जाने से कॉइन नहीं मिलेगा!</p>
@@ -67,10 +72,12 @@
 
             <button id="taskBtn">फ्री टास्क पूरा करें (1 कॉइन लें)</button>
             
+            <!-- Auto UPI Payment & Verification Section -->
             <div class="payment-box">
                 <p><b>कॉइन्स खरीदें (Auto UPI Recharge):</b></p>
                 <p style="font-size: 13px; margin: 5px 0;">रेट: ₹10 = 1 Coin = 40 Likes</p>
                 
+                <!-- Direct UPI Pay Intent Button -->
                 <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
                     <button style="background: #ff9800; margin-top: 8px;">📲 सीधे UPI ऐप से पेमेंट करें (Pay Now)</button>
                 </a>
@@ -90,9 +97,10 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs (v9.22.2) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         // Your web app's Firebase configuration
@@ -126,16 +134,17 @@
         const paymentScreenshot = document.getElementById('paymentScreenshot');
         const submitPaymentBtn = document.getElementById('submitPaymentBtn');
 
-        // One-Click Gmail Pop-up Login Handler
+        // Redirect Login Handler (Fixes popup-blocked error on mobile/Instagram browsers)
         loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider)
-            .then((result) => {
-                console.log("Login Success:", result.user.email);
-            })
-            .catch((error) => {
+            signInWithRedirect(auth, provider).catch((error) => {
                 console.error("Login Error:", error.message);
                 alert("लॉगिन विफल रहा: " + error.message);
             });
+        });
+
+        // Handle Redirect Result
+        getRedirectResult(auth).catch((error) => {
+            console.error("Redirect Error:", error.message);
         });
 
         // Automatic Chain Loader
