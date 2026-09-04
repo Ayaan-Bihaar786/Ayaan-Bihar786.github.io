@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayaan-Bihar786 - P2P Social Media Growth & Auto UPI</title>
+    <title>Ayaan-Bihar786 - P2P Social Media Growth & Chain System</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
         .card { background: white; padding: 20px; border-radius: 10px; max-width: 440px; margin: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -13,8 +13,8 @@
         #userInfo { margin-top: 15px; font-weight: bold; }
         .warning-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 13px; text-align: left; border: 1px solid #ffeeba; }
         .payment-box { background: #e8f4fd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; }
-        .task-link-box { background: #e2f0d9; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; }
-        .input-group { margin-top: 10px; text-align: left; }
+        .task-link-box { background: #e2f0d9; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; text-align: left; border: 1px solid #c3e6cb; }
+        .input-group { margin-top: 12px; text-align: left; }
         .input-group label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
         .input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
     </style>
@@ -23,7 +23,7 @@
 
     <div class="card">
         <h2>Ayaan-Bihar786 Platform</h2>
-        <p>P2P Social Media Growth & Auto Chain</p>
+        <p>P2P Social Media Growth & Chain System</p>
         
         <!-- Login Button -->
         <div id="loginSection">
@@ -41,32 +41,38 @@
             </div>
 
             <p style="margin-top: 15px;">मुफ्त टास्क लिमिट: <span id="taskCount">0</span>/2 उपयोग किए गए</p>
-            <p>कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
+            <p style="margin-top: 5px; font-size: 16px; font-weight: bold; color: #333;">आपके कुल कॉइन्स: <span id="userCoins">0</span> (1 Coin = 40 Likes)</p>
             
-            <!-- URL Submit & Auto Chain Setup -->
-            <div class="input-group">
-                <label>अपना सोशल मीडिया यूआरएल (URL) दें:</label>
-                <input type="text" id="userProfileUrl" placeholder="https://instagram.com/your_profile">
-                <button id="saveUrlBtn" style="background: #28a745; margin-top: 5px;">यूआरएल सेव करें & चेन में लगाएं</button>
+            <!-- URL & Spend Coins / Order Section -->
+            <div class="input-group" style="background: #f9f9f9; padding: 12px; border-radius: 5px; border: 1px solid #ddd;">
+                <label>1. अपना सोशल मीडिया यूआरएल (URL) दें:</label>
+                <input type="text" id="userProfileUrl" placeholder="https://instagram.com/your_profile" style="margin-bottom: 10px;">
+                
+                <label>2. खर्च करने के लिए कॉइन्स की संख्या:</label>
+                <input type="number" id="spendCoinsInput" placeholder="जैसे: 1 या 2 कॉइन" min="1" style="margin-bottom: 6px;">
+                <p style="font-size: 11px; color: #666; margin: 0 0 10px 0;">(1 Coin खर्च करने पर 40 लाइक्स/फॉलोवर्स का ऑर्डर लगेगा)</p>
+
+                <button id="saveUrlAndSpendBtn" style="background: #28a745; margin-top: 0;">ऑर्डर दें & चेन में यूआरएल सेव करें</button>
             </div>
 
-            <!-- Automatic P2P Chain Target Box -->
+            <!-- Automatic P2P Chain Target Box with Strict Verification Rule -->
             <div class="task-link-box">
-                <p><b>ऑटोमैटिक P2P चेन टास्क:</b></p>
-                <p>नीचे दिए गए पिछले यूजर के लिंक पर क्लिक करके फॉलो करें:</p>
+                <p><b>🔗 ऑटोमैटिक P2P चेन टास्क नियम:</b></p>
+                <p style="font-size: 12px; color: #333; margin-bottom: 8px;">नीचे दिए गए लिंक पर क्लिक करके यूजर को **फॉलो/सब्सक्राइब करना अनिवार्य है**। सिर्फ लिंक पर क्लिक करके वापस आ जाने से कॉइन नहीं मिलेगा!</p>
+                
                 <a href="#" target="_blank" id="chainTargetLink" style="color: #007bff; font-weight: bold; display: block; margin: 5px 0; word-break: break-all;">👉 [चेन लिंक लोड हो रहा है...]</a>
-                <label style="font-size: 13px; cursor: pointer;">
-                    <input type="checkbox" id="linkVisitedCheck"> मैंने इस लिंक को फॉलो कर लिया है
+                
+                <label style="font-size: 13px; cursor: pointer; display: block; margin-top: 8px; font-weight: bold; color: #c0392b;">
+                    <input type="checkbox" id="linkVisitedCheck" style="transform: scale(1.2); margin-right: 5px;"> मैंने पूरी ईमानदारी से इस यूजर को फॉलो/सब्सक्राइब कर लिया है
                 </label>
             </div>
 
             <button id="taskBtn">फ्री टास्क पूरा करें (1 कॉइन लें)</button>
             
-            <!-- Auto UPI Payment & Verification Section -->
+            <!-- Auto UPI Payment & Verification Section (UPI ID Hidden) -->
             <div class="payment-box">
                 <p><b>कॉइन्स खरीदें (Auto UPI Recharge):</b></p>
-                <p>रेट: ₹10 = 1 Coin = 40 Likes</p>
-                <p>UPI ID: <b>8092747380-2@ibl</b></p>
+                <p style="font-size: 13px; margin: 5px 0;">रेट: ₹10 = 1 Coin = 40 Likes</p>
                 
                 <!-- Direct UPI Pay Intent Button -->
                 <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
@@ -74,11 +80,11 @@
                 </a>
 
                 <div class="input-group" style="margin-top: 12px;">
-                    <label>पेमेंट का स्क्रीनशॉट यहाँ अपलोड/संलग्न करें:</label>
+                    <label>पेमेंट का स्क्रीनशॉट यहाँ अपलोड करें:</label>
                     <input type="file" id="paymentScreenshot" accept="image/*" style="background: #fff; padding: 5px;">
                 </div>
                 <button id="submitPaymentBtn" style="background: #673ab7; margin-top: 5px;">पेमेंट स्क्रीनशॉट सबमिट करें</button>
-                <p style="font-size: 11px; color: #d9534f; margin-top: 5px;"><b>नियम:</b> सिस्टम और एडमिन द्वारा स्क्रीनशॉट की जांच (Verify) की जाएगी। यदि पेमेंट असली होगा तभी कॉइन्स मिलेंगे, फेक स्क्रीनशॉट मान्य नहीं हैं!</p>
+                <p style="font-size: 11px; color: #d9534f; margin-top: 5px;"><b>नियम:</b> पेमेंट करने के बाद उसका स्क्रीनशॉट यहाँ जरूर अपलोड करें। एडमिन द्वारा जांच (Verify) करने के बाद ही कॉइन्स जोड़े जाएंगे (फेक स्क्रीनशॉट मान्य नहीं है)!</p>
             </div>
 
             <br>
@@ -94,7 +100,7 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-        // Your web app's Firebase configuration (Corrected & Verified)
+        // Your web app's Firebase configuration
         const firebaseConfig = {
           apiKey: "AIzaSyBQSzl-emocmXS9Bp4FCVnTS6NGra7ECXM",
           authDomain: "socialexchange-338ec.firebaseapp.com",
@@ -105,7 +111,6 @@
           measurementId: "G-W3DN7CH8SV"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -120,7 +125,8 @@
         const taskBtn = document.getElementById('taskBtn');
         const linkVisitedCheck = document.getElementById('linkVisitedCheck');
         const userProfileUrl = document.getElementById('userProfileUrl');
-        const saveUrlBtn = document.getElementById('saveUrlBtn');
+        const spendCoinsInput = document.getElementById('spendCoinsInput');
+        const saveUrlAndSpendBtn = document.getElementById('saveUrlAndSpendBtn');
         const chainTargetLink = document.getElementById('chainTargetLink');
         const paymentScreenshot = document.getElementById('paymentScreenshot');
         const submitPaymentBtn = document.getElementById('submitPaymentBtn');
@@ -145,7 +151,7 @@
                 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
-                    if (docSnap.id !== currentUserId && data.profileUrl && data.profileUrl.trim() !== "") {
+                    if (docSnap.id !== currentUserId && data.profileUrl && data.profileUrl.trim() !== "" && (data.coinsSpent || 0) > 0) {
                         activeLinks.push(data.profileUrl);
                     }
                 });
@@ -178,7 +184,8 @@
                         email: user.email,
                         tasksUsed: 0,
                         coins: 0,
-                        profileUrl: ""
+                        profileUrl: "",
+                        coinsSpent: 0
                     });
                     taskCountElem.innerText = 0;
                     userCoinsElem.innerText = 0;
@@ -191,27 +198,47 @@
                     }
                 }
 
-                // Save URL Button Logic
-                saveUrlBtn.onclick = async () => {
+                // Save URL and Spend Coins Order Logic
+                saveUrlAndSpendBtn.onclick = async () => {
                     const urlVal = userProfileUrl.value.trim();
+                    const spendVal = parseInt(spendCoinsInput.value) || 0;
+
                     if (!urlVal) {
                         alert("कृपया अपना सही यूआरएल (URL) दर्ज करें!");
                         return;
                     }
+                    if (spendVal <= 0) {
+                        alert("कृपया खर्च करने के लिए कम से कम 1 या उससे अधिक कॉइन दर्ज करें!");
+                        return;
+                    }
+
+                    const currentSnap = await getDoc(userRef);
+                    const currentCoins = currentSnap.data().coins || 0;
+
+                    if (spendVal > currentCoins) {
+                        alert(`आपके पास पर्याप्त कॉइन्स नहीं हैं! आपके पास कुल ${currentCoins} कॉइन हैं।`);
+                        return;
+                    }
+
                     await updateDoc(userRef, {
-                        profileUrl: urlVal
+                        profileUrl: urlVal,
+                        coins: increment(-spendVal),
+                        coinsSpent: increment(spendVal)
                     });
-                    alert("आपका यूआरएल ऑटोमैटिक चेन में सफलतापूर्वक जोड़ दिया गया है!");
+
+                    userCoinsElem.innerText = currentCoins - spendVal;
+                    spendCoinsInput.value = "";
+
+                    alert(`सफलतापूर्वक ${spendVal} कॉइन खर्च करके ${spendVal * 40} लाइक्स/फॉलोवर्स का ऑर्डर दे दिया गया है और यूआरएल चेन में जुड़ गया है!`);
                     loadChainLink(user.uid);
                 };
 
-                // Load chain link for this user
                 loadChainLink(user.uid);
 
-                // Task Button Click Logic (2-Task Free Limit + Chain Verification)
+                // Task Button Click Logic with Strict Compliance Check & Limit
                 taskBtn.onclick = async () => {
                     if (!linkVisitedCheck.checked) {
-                        alert("कृपया पहले चेन वाले लिंक पर क्लिक करके फॉलो करें और फिर बॉक्स पर टिक (Check) करें, तभी अगला स्टेप पूरा होगा!");
+                        alert("⚠️ चेतावनी: बिना फॉलो किए कॉइन नहीं मिलेगा! कृपया पहले लिंक पर क्लिक करके फॉलो करें और फिर नीचे वाले बॉक्स पर टिक (Check) करें, तभी अगला स्टेप पूरा होगा!");
                         return;
                     }
 
@@ -225,7 +252,6 @@
                         return;
                     }
 
-                    // Increment task count and give 1 coin (equals 40 likes)
                     await updateDoc(userRef, {
                         tasksUsed: increment(1),
                         coins: increment(1)
@@ -238,7 +264,7 @@
                     linkVisitedCheck.checked = false;
                     loadChainLink(user.uid);
                     
-                    alert("बधाई हो! टास्क सफलतापूर्वक पूरा हो गया और आपके खाते में 1 कॉइन (40 Likes) जोड़ दिया गया है।");
+                    alert("बधाई हो! टास्क सफलतापूर्वक पूरा हो गया और आपके खाते में 1 मुफ्त कॉइन जोड़ दिया गया है।");
                 };
 
                 // Payment Screenshot Submission Logic
