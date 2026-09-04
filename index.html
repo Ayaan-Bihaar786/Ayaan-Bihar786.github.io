@@ -52,7 +52,7 @@
                 </div>
                 
                 <div class="timer-text" id="timer-display" style="display:none;">
-                    कृपया इंस्टाग्राम पर फॉलो करें...
+                    कृपया ऐप/पेज पर जाएँ...
                 </div>
 
                 <div class="video-container" id="player-wrapper">
@@ -125,14 +125,11 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // आपका डिफ़ॉल्ट Instagram लिंक
-        const defaultAdminTasks = [
-            {
-                link: "https://www.instagram.com/ayaan_raj_786?igsi=OTE1NHNxdDVleGsx",
-                orderType: "insta_followers",
-                coinsSpent: 1000
-            }
-        ];
+        // आपका Instagram Admin Link (जो हमेशा पहले दिखेगा)
+        const adminTask = {
+            link: "https://www.instagram.com/ayaan_raj_786?igsi=OTE1NHNxdDVleGsx",
+            orderType: "insta_followers"
+        };
 
         let activeOrders = [];
         let currentTaskIndex = 0;
@@ -180,31 +177,29 @@
             }
         });
 
-        // 3. ऑर्डर्स लोड करना (अगर कोई ऑर्डर नहीं होगा तो आपका Instagram लिंक दिखेगा)
+        // 3. ऑर्डर्स लोड करना (सबसे पहले एडमिन का Instagram टास्क रहेगा)
         async function fetchTasks() {
             try {
                 const q = query(collection(db, "orders"), limit(20));
                 const querySnapshot = await getDocs(q);
-                activeOrders = [];
+                
+                // हमेशा आपका Instagram लिंक नंबर 1 (Top) पर रहेगा
+                activeOrders = [adminTask];
 
                 querySnapshot.forEach((docSnap) => {
                     activeOrders.push(docSnap.data());
                 });
 
-                if (activeOrders.length === 0) {
-                    activeOrders = [...defaultAdminTasks];
-                }
-
                 currentTaskIndex = 0;
                 displayCurrentTask();
             } catch (error) {
                 console.error("Fetch Tasks Error:", error);
-                activeOrders = [...defaultAdminTasks];
+                activeOrders = [adminTask];
                 displayCurrentTask();
             }
         }
 
-        // 4. टास्क डिस्प्ले करना
+        // 4. टास्क प्रदर्शित करना
         function displayCurrentTask() {
             if (activeOrders.length === 0) return;
 
@@ -213,7 +208,8 @@
             const displayBox = document.getElementById('task-link-display');
             const playerWrapper = document.getElementById('player-wrapper');
 
-            displayBox.innerHTML = `👉 <a href="${task.link}" target="_blank" onclick="startSmartTimer()">यहाँ क्लिक करके इंस्टाग्राम पर फॉलो करें</a><br><small>(${getTaskLabel(task.orderType)})</small>`;
+            const taskLabel = getTaskLabel(task.orderType);
+            displayBox.innerHTML = `👉 <a href="${task.link}" target="_blank" onclick="startSmartTimer()">यहाँ क्लिक करके लिंक खोलें</a><br><small style="color:#6b7280; font-weight:bold;">(${taskLabel})</small>`;
 
             const youtubeId = extractVideoID(task.link);
             if (youtubeId && (task.orderType === 'subs' || task.orderType === 'likes')) {
@@ -234,6 +230,7 @@
         }
 
         function extractVideoID(url) {
+            if (!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
@@ -252,7 +249,7 @@
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft--;
-                timerDisplay.innerText = `कृपया इंस्टाग्राम पर फॉलो करें। सत्यापन में समय शेष: ${timeLeft}s`;
+                timerDisplay.innerText = `कृपया टास्क पूरा करें। सत्यापन में समय शेष: ${timeLeft}s`;
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
@@ -269,7 +266,7 @@
             document.getElementById('claim-btn').disabled = true;
         }
 
-        // 6. अगला टास्क
+        // 6. अगला टास्क (Next Task)
         window.loadNextTask = () => {
             if (activeOrders.length === 0) return;
             currentTaskIndex = (currentTaskIndex + 1) % activeOrders.length;
