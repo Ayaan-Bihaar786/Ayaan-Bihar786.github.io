@@ -27,7 +27,7 @@
         .warning-banner { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; text-align: left; }
         .trust-banner { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: left; }
         .payment-box { background: #f0fdf4; border: 1px solid #86efac; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
-        .qr-img { width: 220px; height: 220px; max-width: 100%; margin: 12px auto; display: block; border-radius: 12px; border: 2px solid #10b981; }
+        .qr-img { width: 200px; height: 200px; max-width: 100%; margin: 10px auto; display: block; border-radius: 8px; border: 2px solid #10b981; }
     </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
     <h2>Social Exchange App</h2>
     
     <div class="trust-banner">
-        ✅ <b>100% असली एवं सुरक्षित:</b> यह प्लेटफॉर्म पूरी तरह असली है। यहाँ आपको 100% रियल सब्सक्राइबर और फॉलोअर्स मिलते हैं। क्योंकि सभी यूज़र्स असली हैं, इसलिए आपके अकाउंट पर फॉलोअर्स/सब्सक्राइबर्स धीरे-धीरे ही बढ़ेंगे।
+        ✅ <b>100% असली एवं सुरक्षित:</b> यह प्लेटफॉर्म पूरी तरह असली है। यहाँ आपको रियल फॉलोअर्स मिलते हैं। फ्री लिमिट समाप्त होने पर कृपया कॉइन खरीदें।
     </div>
 
     <!-- 1. लॉगिन सेक्शन -->
@@ -51,11 +51,11 @@
         
         <hr>
 
-        <!-- 1. कॉइन कमाएं -->
-        <h3>1. कॉइन कमाएं (Watch & Follow)</h3>
+        <!-- 1. कॉइन कमाएं (Limit: Max 2 Times) -->
+        <h3>1. फ्री कॉइन कमाएं (Max 2 Times)</h3>
         
-        <div class="warning-banner">
-            ⚠️ <b>महत्वपूर्ण नियम:</b> दिए गए लिंक पर क्लिक करके फॉलो या सब्सक्राइब पूरा करने के बाद ही कॉइन मिलेगा। बिना पूरा किए वापस आने पर कॉइन नहीं मिलेंगे!
+        <div class="warning-banner" id="limit-warning">
+            ⚠️ <b>नियम:</b> एक जीमेल अकाउंट से आप केवल **2 बार** ही फ्री टास्क पूरा करके कॉइन कमा सकते हैं। (शेष फ्री चांस: <span id="free-attempts-left">2</span>)
         </div>
 
         <div id="task-container">
@@ -67,8 +67,8 @@
                 कृपया पेज पर रुकें...
             </div>
             
-            <button id="claim-btn" onclick="completeTask()" class="btn-green" disabled>लाइक / सब्सक्राइब / फॉलो किया (+1 Coin)</button>
-            <button onclick="loadNextTask()" class="btn-secondary">अगला टास्क (Next Task) ➔</button>
+            <button id="claim-btn" onclick="completeTask()" class="btn-green" disabled>लाइव / सब्सक्राइब पूरा किया (+1 Coin)</button>
+            <button id="next-task-btn" onclick="loadNextTask()" class="btn-secondary">अगला टास्क (Next Task) ➔</button>
         </div>
 
         <hr>
@@ -77,7 +77,7 @@
         <h3>2. ऑर्डर लगाएं (Promote Your Link)</h3>
         
         <div class="trust-banner" style="background:#fff7ed; border-color:#ffedd5; color:#c2410c;">
-            👉 <b>फ्री प्रमोशन नियम:</b> अपना लिंक सबमिट करने से पहले आपको एडमिन प्रोफाइल को फॉलो करना होगा। उसके बाद आपका लिंक दूसरे यूज़र्स को दिखेगा और आपको फ्री में फॉलोअर्स मिलेंगे!
+            👉 <b>फ्री प्रमोशन नियम:</b> अपना लिंक सबमिट करने से पहले आपको एडमिन प्रोफाइल को फॉलो करना होगा।
         </div>
 
         <select id="order-type" onchange="calculateOutput()">
@@ -105,12 +105,32 @@
         
         <div class="warning-banner">
             🎯 <b>रेट प्लान:</b> ₹10 = 1 Coin (1 Coin = 250 Subscribers/Followers)<br>
-            <b>पेमेंट चेतावनी:</b> पैसे भेजने के बाद सही UTR / Transaction ID दर्ज करें। फर्जी दावा करने पर अकाउंट ब्लॉक कर दिया जाएगा।
+            <b>UPI ID:</b> <span style="color:#000; font-weight:bold;">8092747380-2@ibl</span><br>
+            <b>पेमेंट चेतावनी:</b> पैसे भेजने के बाद सही UTR / Transaction ID दर्ज करें।
         </div>
 
         <div class="payment-box">
-            📲 <b>स्कैन करके पेमेंट करें:</b><br>
-            <img src="qr.jpg" alt="PhonePe QR Code" class="qr-img">
+            📲 <b>डायरेक्ट पेमेंट करें (क्लिक करें):</b><br><br>
+
+            <!-- PhonePe Intent Button -->
+            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
+                <button style="background: #5f259f; margin-bottom: 6px;">Pay with PhonePe</button>
+            </a>
+
+            <!-- Google Pay Intent Button -->
+            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
+                <button style="background: #1a73e8; margin-bottom: 6px;">Pay with Google Pay</button>
+            </a>
+
+            <!-- Paytm Intent Button -->
+            <a href="upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" style="text-decoration: none;">
+                <button style="background: #00b9f1; margin-bottom: 12px;">Pay with Paytm</button>
+            </a>
+
+            <hr style="margin: 10px 0; background: #d1fae5;">
+            <p style="font-size: 12px; color: #047857; margin: 5px 0;">या नीचे दिए गए QR कोड को स्कैन करें:</p>
+            
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=8092747380-2@ibl&pn=AyaanBihar&cu=INR" alt="UPI QR Code" class="qr-img">
         </div>
 
         <input type="number" id="pay-amount" placeholder="कितने रुपये ट्रांसफर किए? (जैसे: 10, 20, 50)" min="10">
@@ -160,6 +180,7 @@
 
   let currentUser = null;
   let currentTaskData = null;
+  let userFreeCompletedCount = 0;
 
   window.loginWithGoogle = function() {
     signInWithPopup(auth, provider).catch(error => alert("लॉगिन एरर: " + error.message));
@@ -180,12 +201,16 @@
           name: user.displayName,
           email: user.email,
           coins: 0,
+          freeCompletedCount: 0,
           adminFollowed: false
         });
+        userFreeCompletedCount = 0;
+      } else {
+        userFreeCompletedCount = userSnap.data().freeCompletedCount || 0;
       }
 
       updateUserCoinsUI();
-      loadNextTask();
+      checkFreeLimitAndLoadTask();
     }
   });
 
@@ -194,6 +219,11 @@
     const userSnap = await getDoc(doc(db, "users", currentUser.uid));
     if (userSnap.exists()) {
       document.getElementById("coin-balance").innerText = userSnap.data().coins || 0;
+      userFreeCompletedCount = userSnap.data().freeCompletedCount || 0;
+      
+      let left = 2 - userFreeCompletedCount;
+      if(left < 0) left = 0;
+      document.getElementById("free-attempts-left").innerText = left;
     }
   }
 
@@ -203,7 +233,20 @@
     document.getElementById("calculation-result").innerText = `अनुमानित लाभ: ${units} (Followers / Likes / Subs)`;
   };
 
+  window.checkFreeLimitAndLoadTask = function() {
+    if (userFreeCompletedCount >= 2) {
+      document.getElementById("task-link-display").innerHTML = "❌ <b>फ्री लिमिट समाप्त!</b> आप इस जीमेल से मिलने वाले 2 फ्री टास्क पूरे कर चुके हैं। अब कॉइन पाने के लिए कृपया '3. कॉइन खरीदें' सेक्शन से पेमेंट करके कॉइन प्राप्त करें।";
+      document.getElementById("claim-btn").style.display = "none";
+      document.getElementById("next-task-btn").style.display = "none";
+      document.getElementById("timer-display").style.display = "none";
+      return;
+    }
+    loadNextTask();
+  };
+
   window.loadNextTask = async function() {
+    if (userFreeCompletedCount >= 2) return;
+
     document.getElementById("claim-btn").disabled = true;
     document.getElementById("timer-display").style.display = "none";
     document.getElementById("task-link-display").innerHTML = "टास्क लोड हो रहा है...";
@@ -231,6 +274,7 @@
   };
 
   window.startTaskTimer = function() {
+    if (userFreeCompletedCount >= 2) return;
     document.getElementById("timer-display").style.display = "block";
     let secondsLeft = 10;
     document.getElementById("timer-display").innerText = `कृपया कम से कम ${secondsLeft} सेकंड पेज पर रुकें...`;
@@ -250,12 +294,26 @@
   window.completeTask = async function() {
     if (!currentUser || !currentTaskData) return;
     
-    await updateDoc(doc(db, "users", currentUser.uid), { coins: increment(1) });
+    if (userFreeCompletedCount >= 2) {
+      alert("आपकी फ्री लिमिट समाप्त हो चुकी है!");
+      checkFreeLimitAndLoadTask();
+      return;
+    }
+
+    // Update user coins and increment free completed count
+    userFreeCompletedCount += 1;
+    const userRef = doc(db, "users", currentUser.uid);
+
+    await updateDoc(userRef, { 
+      coins: increment(1),
+      freeCompletedCount: userFreeCompletedCount
+    });
+    
     await updateDoc(doc(db, "orders", currentTaskData.id), { coinsRemaining: increment(-1) });
 
-    alert("बधाई हो! आपको 1 कॉइन मिल गया है।");
+    alert("बधाई हो! आपको 1 फ्री कॉइन मिल गया है।");
     updateUserCoinsUI();
-    loadNextTask();
+    checkFreeLimitAndLoadTask();
   };
 
   window.verifyAdminFollowFirst = function() {
@@ -278,7 +336,7 @@
     const userSnap = await getDoc(userRef);
 
     if (userSnap.data().coins < coins) {
-      alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! पहले कॉइन्स कमाएं या खरीदें।");
+      alert("आपके पास पर्याप्त कॉइन्स नहीं हैं! कृपया ऊपर दिए गए UPI से पेमेंट करके कॉइन खरीदें।");
       return;
     }
 
@@ -324,3 +382,4 @@
 
 </body>
 </html>
+
