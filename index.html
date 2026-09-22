@@ -1,115 +1,3 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Exchange Platform</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
-
-    <!-- Login Section -->
-    <div id="loginSection" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl shadow-xl text-center">
-        <h1 class="text-2xl font-bold mb-4">स्वागत है! कृपया लॉगिन करें</h1>
-        <button id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
-            Google से लॉगिन करें
-        </button>
-    </div>
-
-    <!-- Dashboard Section -->
-    <div id="dashboardSection" class="w-full max-w-lg bg-slate-800 p-6 rounded-2xl shadow-xl hidden">
-        <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-            <h2 id="userInfo" class="text-lg font-semibold text-blue-400">यूजर</h2>
-            <div class="flex gap-4">
-                <span class="bg-slate-700 px-3 py-1 rounded-lg text-sm">टास्क: <span id="taskCountElem">0</span>/2</span>
-                <span class="bg-amber-600/20 text-amber-400 px-3 py-1 rounded-lg text-sm font-bold">कॉइन्स: <span id="userCoinsElem">0</span></span>
-            </div>
-        </div>
-
-        <!-- Chain Link Section -->
-        <div class="mb-6 bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-            <h3 class="text-sm font-medium text-slate-300 mb-2">नीचे दिए गए लिंक पर क्लिक करके फॉलो/सब्सक्राइब करें:</h3>
-            <a id="chainTargetLink" href="#" target="_blank" class="text-blue-400 hover:underline break-all font-semibold block mb-3">लोड हो रहा है...</a>
-            
-            <div class="flex items-center gap-2 mb-3">
-                <input type="checkbox" id="linkVisitedCheck" class="w-4 h-4 accent-blue-600">
-                <label for="linkVisitedCheck" class="text-sm text-slate-300">मैंने लिंक पर क्लिक करके फॉलो/सब्सक्राइब कर लिया है</label>
-            </div>
-            
-            <button id="taskBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">
-                टास्क पूरा करें & कॉइन पाएं (+1 Coin)
-            </button>
-        </div>
-
-        <!-- Spend Coins Section -->
-        <div class="mb-6 bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-            <h3 class="text-sm font-medium text-slate-300 mb-2">अपनी प्रोफाइल का लिंक जोड़ें और कॉइन खर्च करें:</h3>
-            <input type="text" id="userProfileUrl" placeholder="अपनी प्रोफाइल का URL यहाँ डालें" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-blue-500">
-            <input type="number" id="spendCoinsInput" placeholder="खर्च करने के लिए कॉइन्स की संख्या" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-blue-500">
-            <button id="saveUrlAndSpendBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">
-                लिंक सेव करें & आर्डर दें
-            </button>
-        </div>
-
-        <!-- Payment Section (Redirects to UPI & auto-credits on return) -->
-        <div class="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-            <h3 class="text-sm font-medium text-slate-300 mb-2">अधिक कॉइन्स खरीदें (UPI पेमेंट):</h3>
-            <!-- यहाँ अपना UPI लिंक या पेमेंट गेटवे लिंक डालें, जिसमें ?status=success जुड़ा हो -->
-            <a id="upiPaymentLink" href="#" target="_blank" class="block text-center w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg">
-                💳 UPI से पेमेंट करें (कॉइन पाएं)
-            </a>
-        </div>
-    </div>
-
-    <!-- Firebase Scripts Setup -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Firebase Configuration (यहाँ अपनी सही डिटेल्स डालें)
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        // Elements
-        const loginSection = document.getElementById('loginSection');
-        const dashboardSection = document.getElementById('dashboardSection');
-        const loginBtn = document.getElementById('loginBtn');
-        const userInfo = document.getElementById('userInfo');
-        const taskCountElem = document.getElementById('taskCountElem');
-        const userCoinsElem = document.getElementById('userCoinsElem');
-        const chainTargetLink = document.getElementById('chainTargetLink');
-        const linkVisitedCheck = document.getElementById('linkVisitedCheck');
-        const taskBtn = document.getElementById('taskBtn');
-        const userProfileUrl = document.getElementById('userProfileUrl');
-        const spendCoinsInput = document.getElementById('spendCoinsInput');
-        const saveUrlAndSpendBtn = document.getElementById('saveUrlAndSpendBtn');
-        const upiPaymentLink = document.getElementById('upiPaymentLink');
-
-        loginBtn.onclick = () => {
-            signInWithPopup(auth, provider).catch((error) => console.error("Login Error:", error));
-        };
-
-        // Load Chain Link Function
-        async function loadChainLink(currentUserId) {
-            try {
-                const usersSnapshot = await getDocs(collection(db, "users"));
-                let activeLinks = [];
-
-                usersSnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
                     if (docSnap.id !== currentUserId && data.profileUrl && data.profileUrl.trim() !== "" && (data.coinsSpent || 0) > 0) {
                         activeLinks.push(data.profileUrl);
                     }
@@ -157,28 +45,6 @@
                     }
                 }
 
-                // Setup UPI Link dynamically so it redirects back with ?payment=success
-                const currentWebsiteUrl = window.location.href.split('?')[0];
-                // आप यहाँ अपना असली UPI लिंक या QR गेटवे लिंक सेट कर सकते हैं जिसमें रीडायरेक्ट URL जुड़ा हो
-                upiPaymentLink.href = `upi://pay?pa=yourupi@oksbi&pn=Ayaan&am=10&cu=INR&url=${encodeURIComponent(currentWebsiteUrl + '?payment=success')}`;
-
-                // Check if user returned back from payment with success parameter automatically
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('payment') === 'success') {
-                    // साफ करें ताकि पेज रिफ्रेश होने पर बार-बार कॉइन न जुड़े
-                    window.history.replaceState({}, document.title, currentWebsiteUrl);
-
-                    const currentCoins = userSnap.data().coins || 0;
-                    const rewardCoins = 10; // मिलने वाले कॉइन्स
-
-                    await updateDoc(userRef, {
-                        coins: increment(rewardCoins)
-                    });
-
-                    userCoinsElem.innerText = currentCoins + rewardCoins;
-                    alert(`सफलतापूर्वक पेमेंट हो गया है! आपके खाते में ${rewardCoins} कॉइन्स जोड़ दिए गए हैं।`);
-                }
-
                 // Save URL and Spend Coins Order Logic
                 saveUrlAndSpendBtn.onclick = async () => {
                     const urlVal = userProfileUrl.value.trim();
@@ -210,7 +76,7 @@
                     userCoinsElem.innerText = currentCoins - spendVal;
                     spendCoinsInput.value = "";
 
-                    alert(`सफलतापूर्वक ${spendVal} कॉइन खर्च करके आर्डर दे दिया गया है और यूआरएल चेन में जुड़ गया है!`);
+                    alert(`सफलतापूर्वक ${spendVal} कॉइन खर्च करके ${spendVal * 250} फॉलोवर्स/सब्सक्राइबर्स (या ${spendVal * 40} लाइक्स) का ऑर्डर दे दिया गया है और यूआरएल चेन में जुड़ गया है!`);
                     loadChainLink(user.uid);
                 };
 
@@ -219,7 +85,7 @@
                 // Task Button Click Logic
                 taskBtn.onclick = async () => {
                     if (!linkVisitedCheck.checked) {
-                        alert("⚠️ चेतावनी: बिना फॉलो किए कॉइन नहीं मिलेगा! कृपया पहले लिंक पर क्लिक करके फॉलो करें और फिर नीचे वाले बॉक्स पर टिक करें!");
+                        alert("⚠️ चेतावनी: बिना फॉलो किए कॉइन नहीं मिलेगा! कृपया पहले लिंक पर क्लिक करके फॉलो करें और फिर नीचे वाले बॉक्स पर टिक (Check) करें, तभी अगला स्टेप पूरा होगा!");
                         return;
                     }
 
@@ -229,7 +95,7 @@
                     const currentCoins = currentData.coins || 0;
 
                     if (currentTasks >= 2) {
-                        alert("आपकी 2 बार की मुफ्त कॉइन सीमा समाप्त हो चुकी है! और कॉइन्स पाने के लिए कृपया UPI पेमेंट करें।");
+                        alert("आपकी 2 बार की मुफ्त कॉइन सीमा समाप्त हो चुकी है! और कॉइन्स पाने के लिए ऊपर दिए गए 'सीधे UPI ऐप से पेमेंट करें' बटन से भुगतान करें और स्क्रीनशॉट सबमिट करें।");
                         return;
                     }
 
@@ -247,6 +113,16 @@
                     alert("बधाई हो! टास्क सफलतापूर्वक पूरा हो गया और आपके खाते में 1 मुफ्त कॉइन जोड़ दिया गया है।");
                 };
 
+                // Payment Screenshot Submission Logic
+                submitPaymentBtn.onclick = () => {
+                    if (paymentScreenshot.files.length === 0) {
+                        alert("कृपया पहले पेमेंट का स्क्रीनशॉट चुनें!");
+                        return;
+                    }
+                    alert("आपका स्क्रीनशॉट सफलतापूर्वक सबमिट हो गया है! एडमिन द्वारा वेरीफाई (Verify) करने के बाद आपके खाते में कॉइन्स जोड़ दिए जाएंगे। (फेक स्क्रीनशॉट मान्य नहीं है)");
+                    paymentScreenshot.value = "";
+                };
+
             } else {
                 loginSection.classList.remove('hidden');
                 dashboardSection.classList.add('hidden');
@@ -255,4 +131,3 @@
     </script>
 </body>
 </html>
-
