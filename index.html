@@ -56,16 +56,16 @@
         <div class="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
             <h3 class="text-sm font-medium text-slate-300 mb-2">अधिक कॉइन्स खरीदें (UPI पेमेंट):</h3>
             
-            <!-- Step 1: Payment Done Button -->
+            <!-- Step 1: Payment Button (User clicks after paying) -->
             <div id="paymentStep1">
-                <button id="makePaymentDoneBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                <button id="makePaymentDoneBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-2">
                     पेमेंट कर दिया है (आगे बढ़ें)
                 </button>
             </div>
 
             <!-- Step 2: Direct "I Am Interested" Process -->
             <div id="paymentStep2" class="hidden text-center mt-2">
-                <p class="text-xs text-amber-300 mb-3">⚠️ पेमेंट प्रक्रिया पूरी करने के लिए नीचे दिए गए बटन पर क्लिक करें:</p>
+                <p class="text-xs text-amber-300 mb-3">⚠️ पेमेंट प्रोसेस लगभग पूरा हो चुका है! कॉइन प्राप्त करने के लिए नीचे क्लिक करें:</p>
                 <button id="imInterestedBtn" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg animate-pulse">
                     ✨ I Am Interested (कॉइन प्राप्त करें) ✨
                 </button>
@@ -252,7 +252,7 @@
                     const currentSnap = await getDoc(userRef);
                     const currentCoins = currentSnap.data().coins || 0;
                     
-                    // यहाँ तय कॉइन मात्रा (जैसे 10 कॉइन) जोड़ी जा रही है, आप इसे बदल सकते हैं
+                    // यहाँ तय कॉइन मात्रा सेट है (जैसे 10 कॉइन), आप इसे अपनी मर्जी से बदल सकते हैं
                     const rewardCoins = 10; 
 
                     await updateDoc(userRef, {
