@@ -52,24 +52,13 @@
             </button>
         </div>
 
-        <!-- Payment & Direct Process Section -->
+        <!-- Payment Section (Redirects to UPI & auto-credits on return) -->
         <div class="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
             <h3 class="text-sm font-medium text-slate-300 mb-2">अधिक कॉइन्स खरीदें (UPI पेमेंट):</h3>
-            
-            <!-- Step 1: Payment Button (User clicks after paying) -->
-            <div id="paymentStep1">
-                <button id="makePaymentDoneBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition text-sm mb-2">
-                    पेमेंट कर दिया है (आगे बढ़ें)
-                </button>
-            </div>
-
-            <!-- Step 2: Direct "I Am Interested" Process -->
-            <div id="paymentStep2" class="hidden text-center mt-2">
-                <p class="text-xs text-amber-300 mb-3">⚠️ पेमेंट प्रोसेस लगभग पूरा हो चुका है! कॉइन प्राप्त करने के लिए नीचे क्लिक करें:</p>
-                <button id="imInterestedBtn" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg animate-pulse">
-                    ✨ I Am Interested (कॉइन प्राप्त करें) ✨
-                </button>
-            </div>
+            <!-- यहाँ अपना UPI लिंक या पेमेंट गेटवे लिंक डालें, जिसमें ?status=success जुड़ा हो -->
+            <a id="upiPaymentLink" href="#" target="_blank" class="block text-center w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg">
+                💳 UPI से पेमेंट करें (कॉइन पाएं)
+            </a>
         </div>
     </div>
 
@@ -79,7 +68,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration (अपने प्रोजेक्ट के अनुसार यहाँ डिटेल्स भरें)
+        // Firebase Configuration (यहाँ अपनी सही डिटेल्स डालें)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -107,12 +96,7 @@
         const userProfileUrl = document.getElementById('userProfileUrl');
         const spendCoinsInput = document.getElementById('spendCoinsInput');
         const saveUrlAndSpendBtn = document.getElementById('saveUrlAndSpendBtn');
-        
-        // Payment & Direct Process Elements
-        const makePaymentDoneBtn = document.getElementById('makePaymentDoneBtn');
-        const paymentStep1 = document.getElementById('paymentStep1');
-        const paymentStep2 = document.getElementById('paymentStep2');
-        const imInterestedBtn = document.getElementById('imInterestedBtn');
+        const upiPaymentLink = document.getElementById('upiPaymentLink');
 
         loginBtn.onclick = () => {
             signInWithPopup(auth, provider).catch((error) => console.error("Login Error:", error));
@@ -171,6 +155,28 @@
                     if (data.profileUrl) {
                         userProfileUrl.value = data.profileUrl;
                     }
+                }
+
+                // Setup UPI Link dynamically so it redirects back with ?payment=success
+                const currentWebsiteUrl = window.location.href.split('?')[0];
+                // आप यहाँ अपना असली UPI लिंक या QR गेटवे लिंक सेट कर सकते हैं जिसमें रीडायरेक्ट URL जुड़ा हो
+                upiPaymentLink.href = `upi://pay?pa=yourupi@oksbi&pn=Ayaan&am=10&cu=INR&url=${encodeURIComponent(currentWebsiteUrl + '?payment=success')}`;
+
+                // Check if user returned back from payment with success parameter automatically
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('payment') === 'success') {
+                    // साफ करें ताकि पेज रिफ्रेश होने पर बार-बार कॉइन न जुड़े
+                    window.history.replaceState({}, document.title, currentWebsiteUrl);
+
+                    const currentCoins = userSnap.data().coins || 0;
+                    const rewardCoins = 10; // मिलने वाले कॉइन्स
+
+                    await updateDoc(userRef, {
+                        coins: increment(rewardCoins)
+                    });
+
+                    userCoinsElem.innerText = currentCoins + rewardCoins;
+                    alert(`सफलतापूर्वक पेमेंट हो गया है! आपके खाते में ${rewardCoins} कॉइन्स जोड़ दिए गए हैं।`);
                 }
 
                 // Save URL and Spend Coins Order Logic
@@ -241,33 +247,6 @@
                     alert("बधाई हो! टास्क सफलतापूर्वक पूरा हो गया और आपके खाते में 1 मुफ्त कॉइन जोड़ दिया गया है।");
                 };
 
-                // Payment Done Click -> Directly enters Step 2 (I Am Interested)
-                makePaymentDoneBtn.onclick = () => {
-                    paymentStep1.classList.add('hidden');
-                    paymentStep2.classList.remove('hidden');
-                };
-
-                // "I Am Interested" Button Logic -> Finalizes and adds coins
-                imInterestedBtn.onclick = async () => {
-                    const currentSnap = await getDoc(userRef);
-                    const currentCoins = currentSnap.data().coins || 0;
-                    
-                    // यहाँ तय कॉइन मात्रा सेट है (जैसे 10 कॉइन), आप इसे अपनी मर्जी से बदल सकते हैं
-                    const rewardCoins = 10; 
-
-                    await updateDoc(userRef, {
-                        coins: increment(rewardCoins)
-                    });
-
-                    userCoinsElem.innerText = currentCoins + rewardCoins;
-
-                    // वापस पहले स्टेप पर ले आएं
-                    paymentStep2.classList.add('hidden');
-                    paymentStep1.classList.remove('hidden');
-
-                    alert(`बधाई हो! प्रोसेस पूरा हो गया है और आपके खाते में ${rewardCoins} कॉइन्स सफलतापूर्वक जोड़ दिए गए हैं!`);
-                };
-
             } else {
                 loginSection.classList.remove('hidden');
                 dashboardSection.classList.add('hidden');
@@ -276,3 +255,4 @@
     </script>
 </body>
 </html>
+
